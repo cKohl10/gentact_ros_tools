@@ -9,10 +9,14 @@ from launch_ros.parameter_descriptions import ParameterValue
 
 def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time', default='false')
+    namespace = 'calibration'
     
     # Generate URDF from xacro file (or read URDF file)
-    urdf_file = PathJoinSubstitution([FindPackageShare('gentact_ros_tools'), 'urdf', 'link5.xacro'])
-    robot_description = ParameterValue(Command(['xacro ', urdf_file, ' namespace:=link5']), value_type=str)
+    sensor_urdf_file = PathJoinSubstitution([FindPackageShare('gentact_ros_tools'), 'urdf', 'link5_2.xacro'])
+    sensor_description = ParameterValue(Command(['xacro ', sensor_urdf_file, f' namespace:={namespace}_link5']), value_type=str)
+
+    robot_urdf_file = PathJoinSubstitution([FindPackageShare('gentact_ros_tools'), 'urdf', 'fr3_plate.urdf'])
+    robot_description = ParameterValue(Command(['cat ', robot_urdf_file]), value_type=str)
 
     # Create nodes
     foxglove_bridge_node = Node(
@@ -22,20 +26,45 @@ def generate_launch_description():
         output='screen',
     )
 
+    sensor_state_publisher_node = Node(
+        package='robot_state_publisher',
+        executable='robot_state_publisher',
+        name='sensor_state_publisher',
+        output='screen',
+        parameters=[{'use_sim_time': use_sim_time, 'robot_description': sensor_description}],
+        remappings=[('/robot_description', '/sensor_description')]
+    )
+
     robot_state_publisher_node = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
-        name='robot_state_publisher',
+        name='fr3_robot_state_publisher',
         output='screen',
-        parameters=[{'use_sim_time': use_sim_time, 'robot_description': robot_description}]
+        parameters=[{'use_sim_time': use_sim_time, 'robot_description': robot_description}],
     )
 
-    static_transform_publisher_node = Node(
+    # Add joint state publisher for FR3 robot
+    joint_state_publisher_node = Node(
+        package='joint_state_publisher_gui',
+        executable='joint_state_publisher_gui',
+        name='fr3_joint_state_publisher',
+        output='screen',
+    )
+
+    sensor_st_base_node = Node(
         package='tf2_ros',
         executable='static_transform_publisher',
-        name='static_transform_publisher',
+        name='sensor_static_transform_publisher',
         output='screen',
-        arguments=['0', '0', '0', '0', '0', '0', 'map', 'link5/base_link']
+        arguments=['0.5', '0', '-0.1', '3.14159', '0', '0', 'map', f'{namespace}_link5/base_link']
+    )
+
+    robot_st_base_node = Node(
+        package='tf2_ros',
+        executable='static_transform_publisher',
+        name='robot_static_transform_publisher',
+        output='screen',
+        arguments=['0', '0', '0', '0', '0', '0', 'map', 'base']
     )
 
     return LaunchDescription([
@@ -44,6 +73,9 @@ def generate_launch_description():
             default_value='false',
             description='Use simulation (Gazebo) clock if true'),
         foxglove_bridge_node,
+        TimerAction(period=1.0, actions=[sensor_state_publisher_node]),  # 1 second delay
         TimerAction(period=2.0, actions=[robot_state_publisher_node]),  # 2 second delay
-        TimerAction(period=4.0, actions=[static_transform_publisher_node]),  # 4 second delay
+        TimerAction(period=3.0, actions=[joint_state_publisher_node]),  # 3 second delay
+        TimerAction(period=4.0, actions=[robot_st_base_node]),  # 4 second delay
+        TimerAction(period=5.0, actions=[sensor_st_base_node]),  # 5 second delay
     ])
