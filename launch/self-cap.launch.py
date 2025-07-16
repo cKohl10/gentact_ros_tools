@@ -56,7 +56,7 @@ def generate_launch_description():
         executable='static_transform_publisher',
         name='sensor_static_transform_publisher',
         output='screen',
-        arguments=['0.5', '0', '-0.1', '3.14159', '0', '0', 'map', f'{namespace}_link5/base_link']
+        arguments=['0.5', '0', '-0.2', '1.57079632679', '0', '1.7', 'map', f'{namespace}_link5/base_link']
     )
 
     robot_st_base_node = Node(
