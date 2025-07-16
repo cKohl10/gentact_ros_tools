@@ -26,7 +26,7 @@
     </visual>
     <collision name="fr3_link0_collision">
       <geometry>
-        <mesh filename="package://franka_description/meshes/robot_arms/fr3/collision/link0.stl"/>
+        <mesh filename="https://cdn.jsdelivr.net/gh/frankarobotics/franka_description@main/meshes/robot_arms/fr3/collision/link0.stl"/>
       </geometry>
     </collision>
     <inertial>
@@ -39,12 +39,12 @@
   <link name="fr3_link1">
     <visual name="fr3_link1_visual">
       <geometry>
-        <mesh filename="package://franka_description/meshes/robot_arms/fr3/visual/link1.dae"/>
+        <mesh filename="https://cdn.jsdelivr.net/gh/frankarobotics/franka_description@main/meshes/robot_arms/fr3/visual/link1.dae"/>
       </geometry>
     </visual>
     <collision name="fr3_link1_collision">
       <geometry>
-        <mesh filename="package://franka_description/meshes/robot_arms/fr3/collision/link1.stl"/>
+        <mesh filename="https://cdn.jsdelivr.net/gh/frankarobotics/franka_description@main/meshes/robot_arms/fr3/collision/link1.stl"/>
       </geometry>
     </collision>
     <inertial>
