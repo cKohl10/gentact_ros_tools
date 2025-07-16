@@ -5,13 +5,13 @@
 <!-- =================================================================================== -->
 <robot name="link5">
   <!-- [m] -->
-  <link name="link5/base_link"/>
-  <joint name="link5/base_joint" type="fixed">
+  <link name="calibration_link5/base_link"/>
+  <joint name="calibration_link5/base_joint" type="fixed">
     <origin rpy="0 0 0" xyz="0 0 0"/>
-    <parent link="link5/base_link"/>
-    <child link="link5/base_link_inertia"/>
+    <parent link="calibration_link5/base_link"/>
+    <child link="calibration_link5/base_link_inertia"/>
   </joint>
-  <link name="link5/base_link_inertia">
+  <link name="calibration_link5/base_link_inertia">
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
@@ -19,13 +19,13 @@
       </geometry>
     </visual>
   </link>
-  <joint name="link5/sensor_0_joint" type="fixed">
+  <joint name="calibration_link5/sensor_0_joint" type="fixed">
     <origin rpy="1.856 -0.000 2.558" xyz="0.034 0.127 -0.019"/>
     <axis xyz="0.529 0.801 -0.281"/>
-    <parent link="link5/base_link"/>
-    <child link="link5/sensor_0"/>
+    <parent link="calibration_link5/base_link"/>
+    <child link="calibration_link5/sensor_0"/>
   </joint>
-  <link name="link5/sensor_0">
+  <link name="calibration_link5/sensor_0">
     <visual>
       <geometry>
         <sphere radius="0.021"/>
@@ -39,13 +39,13 @@
       </geometry>
     </collision>
   </link>
-  <joint name="link5/sensor_1_joint" type="fixed">
+  <joint name="calibration_link5/sensor_1_joint" type="fixed">
     <origin rpy="-1.403 3.142 0.049" xyz="-0.004 0.118 -0.089"/>
     <axis xyz="-0.049 0.985 -0.167"/>
-    <parent link="link5/base_link"/>
-    <child link="link5/sensor_1"/>
+    <parent link="calibration_link5/base_link"/>
+    <child link="calibration_link5/sensor_1"/>
   </joint>
-  <link name="link5/sensor_1">
+  <link name="calibration_link5/sensor_1">
     <visual>
       <geometry>
         <sphere radius="0.023"/>
@@ -59,13 +59,13 @@
       </geometry>
     </collision>
   </link>
-  <joint name="link5/sensor_2_joint" type="fixed">
+  <joint name="calibration_link5/sensor_2_joint" type="fixed">
     <origin rpy="1.754 0.000 -2.905" xyz="-0.017 0.107 -0.138"/>
     <axis xyz="-0.23 0.956 -0.182"/>
-    <parent link="link5/base_link"/>
-    <child link="link5/sensor_2"/>
+    <parent link="calibration_link5/base_link"/>
+    <child link="calibration_link5/sensor_2"/>
   </joint>
-  <link name="link5/sensor_2">
+  <link name="calibration_link5/sensor_2">
     <visual>
       <geometry>
         <sphere radius="0.022"/>
@@ -79,13 +79,13 @@
       </geometry>
     </collision>
   </link>
-  <joint name="link5/sensor_3_joint" type="fixed">
+  <joint name="calibration_link5/sensor_3_joint" type="fixed">
     <origin rpy="1.772 -0.000 -2.583" xyz="-0.035 0.129 -0.011"/>
     <axis xyz="-0.519 0.831 -0.2"/>
-    <parent link="link5/base_link"/>
-    <child link="link5/sensor_3"/>
+    <parent link="calibration_link5/base_link"/>
+    <child link="calibration_link5/sensor_3"/>
   </joint>
-  <link name="link5/sensor_3">
+  <link name="calibration_link5/sensor_3">
     <visual>
       <geometry>
         <sphere radius="0.018"/>
@@ -99,13 +99,13 @@
       </geometry>
     </collision>
   </link>
-  <joint name="link5/sensor_4_joint" type="fixed">
+  <joint name="calibration_link5/sensor_4_joint" type="fixed">
     <origin rpy="1.135 -0.000 -3.039" xyz="-0.008 0.136 0.024"/>
     <axis xyz="-0.093 0.902 0.423"/>
-    <parent link="link5/base_link"/>
-    <child link="link5/sensor_4"/>
+    <parent link="calibration_link5/base_link"/>
+    <child link="calibration_link5/sensor_4"/>
   </joint>
-  <link name="link5/sensor_4">
+  <link name="calibration_link5/sensor_4">
     <visual>
       <geometry>
         <sphere radius="0.02"/>
@@ -119,13 +119,13 @@
       </geometry>
     </collision>
   </link>
-  <joint name="link5/sensor_5_joint" type="fixed">
+  <joint name="calibration_link5/sensor_5_joint" type="fixed">
     <origin rpy="-1.262 3.142 0.019" xyz="-0.000 0.099 -0.185"/>
     <axis xyz="-0.018 0.952 -0.304"/>
-    <parent link="link5/base_link"/>
-    <child link="link5/sensor_5"/>
+    <parent link="calibration_link5/base_link"/>
+    <child link="calibration_link5/sensor_5"/>
   </joint>
-  <link name="link5/sensor_5">
+  <link name="calibration_link5/sensor_5">
     <visual>
       <geometry>
         <sphere radius="0.022"/>
@@ -139,13 +139,13 @@
       </geometry>
     </collision>
   </link>
-  <joint name="link5/sensor_6_joint" type="fixed">
+  <joint name="calibration_link5/sensor_6_joint" type="fixed">
     <origin rpy="-1.229 3.142 0.054" xyz="-0.007 0.130 -0.039"/>
     <axis xyz="-0.051 0.941 -0.335"/>
-    <parent link="link5/base_link"/>
-    <child link="link5/sensor_6"/>
+    <parent link="calibration_link5/base_link"/>
+    <child link="calibration_link5/sensor_6"/>
   </joint>
-  <link name="link5/sensor_6">
+  <link name="calibration_link5/sensor_6">
     <visual>
       <geometry>
         <sphere radius="0.018"/>
