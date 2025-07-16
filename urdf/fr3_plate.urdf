@@ -21,7 +21,7 @@
   <link name="fr3_link0">
     <visual name="fr3_link0_visual">
       <geometry>
-        <mesh filename="package://franka_description/meshes/robot_arms/fr3/visual/link0.dae"/>
+        <mesh filename="https://cdn.jsdelivr.net/gh/frankarobotics/franka_description@main/meshes/robot_arms/fr3/visual/link0.dae"/>
       </geometry>
     </visual>
     <collision name="fr3_link0_collision">
@@ -401,7 +401,7 @@
   <link name="fr3_hand">
     <visual name="fr3_hand_visual">
       <geometry>
-        <mesh filename="package://gentact_ros_tools/meshes/large_plate_ee.stl"/>
+        <mesh filename="package://gentact_ros_tools/meshes/end_effectors/large_plate_ee.stl"/>
       </geometry>
     </visual>
     <collision name="fr3_hand_collision">
