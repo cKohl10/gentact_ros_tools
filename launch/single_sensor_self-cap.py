@@ -46,17 +46,51 @@ def generate_launch_description():
         name='rviz2'
     )
 
-    tof_listener = Node(
-        package='udp_tof_listener',
-        executable='udp_grid_listener_array',
-        name='tof_listener'
+    # Sensor     # Declare launch arguments
+    serial_port_arg = DeclareLaunchArgument(
+        'serial_port',
+        default_value='/dev/ttyACM0',
+        description='Serial port for sensor data'
+    )
+    
+    baud_rate_arg = DeclareLaunchArgument(
+        'baud_rate',
+        default_value='9600',
+        description='Baud rate for serial communication'
+    )
+    
+    num_sensors_arg = DeclareLaunchArgument(
+        'num_sensors',
+        default_value='6',
+        description='Number of sensors'
+    )
+    
+    publish_rate_arg = DeclareLaunchArgument(
+        'publish_rate',
+        default_value='30.0',
+        description='Publishing rate in Hz'
     )
 
-    pointcloud_talker = Node(
-        package='pointcloud',
-        executable='talker',
-        name='tof_talker'
+    # Create the sensor publisher node
+    sensor_publisher_node = Node(
+        package='gentact_ros_tools',
+        executable='sensor_publisher',
+        name='sensor_publisher',
+        parameters=[{
+            'serial_port': LaunchConfiguration('serial_port'),
+            'baud_rate': LaunchConfiguration('baud_rate'),
+            'num_sensors': LaunchConfiguration('num_sensors'),
+            'publish_rate': LaunchConfiguration('publish_rate'),
+        }],
+        output='screen'
     )
+
+    camera_node = Node(
+        package='realsense2_camera',
+        executable='realsense2_camera_node',
+        name='cam_pub',
+    )
+
 
     return LaunchDescription([
         DeclareLaunchArgument(
@@ -68,7 +102,7 @@ def generate_launch_description():
         TimerAction(period=2.0, actions=[robot_state_publisher_node]),
         #TimerAction(period=3.0, actions=[joint_state_publisher_node]),
         TimerAction(period=4.0, actions=[robot_st_base_node]),
-        TimerAction(period=5.0, actions=[tof_listener]),
-        TimerAction(period=6.0, actions=[pointcloud_talker]),
+        TimerAction(period=5.0, actions=[camera_node]),
+        TimerAction(period=6.0, actions=[sensor_publisher_node]),
 
     ])

@@ -176,7 +176,7 @@
   <!-- [m] -->
   <link name="fr3_link5/base_link"/>
   <joint name="fr3_link5_to_base_link" type="fixed">
-    <origin xyz="0 0.07 -0.08 " rpy="1.4 3.14 3.14"/>
+    <origin xyz="0 0.07 -0.107 " rpy="1.4 3.14 3.14"/>
     <parent link="fr3_link5"/>
     <child link="fr3_link5/base_link"/>
   </joint>
@@ -185,9 +185,9 @@
     <parent link="fr3_link5/base_link"/>
     <child link="fr3_link5/base_link_inertia"/>
   </joint>
-  <link name="fr3_link5/base_link_inertia">
+    <link name="fr3_link5/base_link_inertia">
     <visual>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <origin rpy="0 0 0" xyz="0 -0.027 0"/>
       <geometry>
         <mesh filename="file:///home/caleb/ros2_ws/src/gentact_ros_tools/meshes/skin/link5_spad.stl" scale="1 1 1"/>
       </geometry>
@@ -202,13 +202,13 @@
   <link name="fr3_link5/sensor_0">
     <visual>
       <geometry>
-        <sphere radius="0.002"/>
+        <sphere radius="0.005"/>
         <!-- [m] -->
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <sphere radius="0.002"/>
+        <sphere radius="0.005"/>
         <!-- [m] -->
       </geometry>
     </collision>
@@ -222,13 +222,13 @@
   <link name="fr3_link5/sensor_1">
     <visual>
       <geometry>
-        <sphere radius="0.002"/>
+        <sphere radius="0.005"/>
         <!-- [m] -->
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <sphere radius="0.002"/>
+        <sphere radius="0.005"/>
         <!-- [m] -->
       </geometry>
     </collision>
@@ -242,13 +242,13 @@
   <link name="fr3_link5/sensor_2">
     <visual>
       <geometry>
-        <sphere radius="0.002"/>
+        <sphere radius="0.005"/>
         <!-- [m] -->
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <sphere radius="0.002"/>
+        <sphere radius="0.005"/>
         <!-- [m] -->
       </geometry>
     </collision>
@@ -262,13 +262,13 @@
   <link name="fr3_link5/sensor_3">
     <visual>
       <geometry>
-        <sphere radius="0.002"/>
+        <sphere radius="0.005"/>
         <!-- [m] -->
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <sphere radius="0.002"/>
+        <sphere radius="0.005"/>
         <!-- [m] -->
       </geometry>
     </collision>
@@ -282,13 +282,13 @@
   <link name="fr3_link5/sensor_4">
     <visual>
       <geometry>
-        <sphere radius="0.002"/>
+        <sphere radius="0.005"/>
         <!-- [m] -->
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <sphere radius="0.002"/>
+        <sphere radius="0.005"/>
         <!-- [m] -->
       </geometry>
     </collision>
@@ -302,13 +302,13 @@
   <link name="fr3_link5/sensor_5">
     <visual>
       <geometry>
-        <sphere radius="0.002"/>
+        <sphere radius="0.005"/>
         <!-- [m] -->
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <sphere radius="0.002"/>
+        <sphere radius="0.005"/>
         <!-- [m] -->
       </geometry>
     </collision>
@@ -322,13 +322,13 @@
   <link name="fr3_link5/sensor_6">
     <visual>
       <geometry>
-        <sphere radius="0.002"/>
+        <sphere radius="0.005"/>
         <!-- [m] -->
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <sphere radius="0.002"/>
+        <sphere radius="0.005"/>
         <!-- [m] -->
       </geometry>
     </collision>
@@ -342,17 +342,18 @@
   <link name="fr3_link5/sensor_7">
     <visual>
       <geometry>
-        <sphere radius="0.002"/>
+        <sphere radius="0.005"/>
         <!-- [m] -->
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <sphere radius="0.002"/>
+        <sphere radius="0.005"/>
         <!-- [m] -->
       </geometry>
     </collision>
   </link>
+
 
 
   <!-- sub-link defining detailed meshes for collision with environment -->

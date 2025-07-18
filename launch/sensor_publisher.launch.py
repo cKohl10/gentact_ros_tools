@@ -8,7 +8,7 @@ def generate_launch_description():
     # Declare launch arguments
     serial_port_arg = DeclareLaunchArgument(
         'serial_port',
-        default_value='/dev/ttyACM1',
+        default_value='/dev/ttyACM0',
         description='Serial port for sensor data'
     )
     
@@ -20,7 +20,7 @@ def generate_launch_description():
     
     num_sensors_arg = DeclareLaunchArgument(
         'num_sensors',
-        default_value='3',
+        default_value='6',
         description='Number of sensors'
     )
     
@@ -43,6 +43,12 @@ def generate_launch_description():
         }],
         output='screen'
     )
+
+    camera_node = Node(
+        package='realsense2_camera',
+        executable='realsense2_camera_node',
+        name='cam_pub',
+    )
     
     return LaunchDescription([
         serial_port_arg,
@@ -50,4 +56,5 @@ def generate_launch_description():
         num_sensors_arg,
         publish_rate_arg,
         sensor_publisher_node,
+        camera_node,
     ]) 

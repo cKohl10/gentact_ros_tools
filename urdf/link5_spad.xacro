@@ -12,7 +12,7 @@
   <xacro:property name="sensor_radius" value="0.005" /> <!-- [m] -->
 
   <!-- Included URDF Files -->
-  <xacro:include filename="$(find gentact_ros_tools_fp)/urdf/self-cap-base.xacro" />
+  <xacro:include filename="$(find gentact_ros_tools)/urdf/self-cap-base.xacro" />
 
   <!-- Instantiate dermis once -->
   <xacro:dermis_base_macro

@@ -30,7 +30,7 @@ setup(
         (os.path.join('share', package_name, 'config'), glob('config/*')),
         (os.path.join('share', package_name, 'msg'), glob('gentact_ros_tools/msg/*.msg')),
     ] + get_data_files_recursive('meshes', os.path.join('share', package_name, 'meshes')),
-    install_requires=['setuptools', 'rclpy'],
+    install_requires=['setuptools'],
     zip_safe=True,
     maintainer='carson',
     maintainer_email='carson.kohlbrenner@gmail.com',
