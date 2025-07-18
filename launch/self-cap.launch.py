@@ -56,7 +56,7 @@ def generate_launch_description():
         executable='static_transform_publisher',
         name='sensor_static_transform_publisher',
         output='screen',
-        arguments=['0.5', '0', '-0.2', '1.57079632679', '0', '1.7', 'map', f'{namespace}_link5/base_link']
+        arguments=['0.53', '-0.01', '-0.11', '1.57079632679', '0', '1.7', 'map', f'{namespace}_link5/base_link']
     )
 
     robot_st_base_node = Node(
@@ -73,9 +73,9 @@ def generate_launch_description():
             default_value='false',
             description='Use simulation (Gazebo) clock if true'),
         foxglove_bridge_node,
-        TimerAction(period=1.0, actions=[sensor_state_publisher_node]),  # 1 second delay
-        TimerAction(period=2.0, actions=[robot_state_publisher_node]),  # 2 second delay
-        TimerAction(period=3.0, actions=[joint_state_publisher_node]),  # 3 second delay
-        TimerAction(period=4.0, actions=[robot_st_base_node]),  # 4 second delay
+        TimerAction(period=1.0, actions=[robot_state_publisher_node]),  # 1 second delay
+        TimerAction(period=2.0, actions=[sensor_state_publisher_node]),  # 2 second delay
+        # TimerAction(period=3.0, actions=[joint_state_publisher_node]),  # 3 second delay
+        TimerAction(period=3.0, actions=[robot_st_base_node]),  # 4 second delay
         TimerAction(period=5.0, actions=[sensor_st_base_node]),  # 5 second delay
     ])
