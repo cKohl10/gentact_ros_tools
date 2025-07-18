@@ -5,15 +5,15 @@
   <!-- Main Sensor Dermis -->
   <xacro:macro name="dermis_base_macro"
     params="robot_namespace mass body_width body_height use_mesh_file mesh_file *inertia">
-    <link name="${robot_namespace}/base_link"></link>
+    <link name="${robot_namespace}_skin"></link>
 
-    <joint name="${robot_namespace}/base_joint" type="fixed">
+    <joint name="${robot_namespace}_base_joint" type="fixed">
       <origin xyz="0 0 0" rpy="0 0 0" />
-      <parent link="${robot_namespace}/base_link" />
-      <child link="${robot_namespace}/base_link_inertia" />
+      <parent link="${robot_namespace}_skin" />
+      <child link="${robot_namespace}_skin_inertia" />
     </joint>
 
-    <link name="${robot_namespace}/base_link_inertia">
+    <link name="${robot_namespace}_skin_inertia">
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
@@ -31,13 +31,13 @@
   <!-- Self Capacitance Proximity Sensor -->
   <xacro:macro name="self_cap_sensor"
     params="robot_namespace parent sensor_number sensor_radius sensor_length normal_x normal_y normal_z *origin">
-    <joint name="${robot_namespace}/sensor_${sensor_number}_joint" type="fixed">
+    <joint name="${robot_namespace}_sensor_${sensor_number}_joint" type="fixed">
       <xacro:insert_block name="origin" />
       <axis xyz="${normal_x} ${normal_y} ${normal_z}" />
       <parent link="${parent}" />
-      <child link="${robot_namespace}/sensor_${sensor_number}" />
+      <child link="${robot_namespace}_sensor_${sensor_number}" />
     </joint>
-    <link name="${robot_namespace}/sensor_${sensor_number}">
+    <link name="${robot_namespace}_sensor_${sensor_number}">
       <visual>
         <geometry>
           <sphere radius="${sensor_radius}" /> <!-- [m] -->

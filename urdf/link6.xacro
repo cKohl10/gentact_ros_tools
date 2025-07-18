@@ -4,7 +4,7 @@
   <!-- Properties -->
   <xacro:property name="namespace" value="$(arg namespace)" />
   <xacro:property name="use_mesh_file" value="true" />
-  <xacro:property name="mesh_file" value="package://gentact_ros_tools/meshes/skins/link6.stl" />
+  <xacro:property name="mesh_file" value="package://gentact_ros_tools/meshes/skin/link6.stl" />
   <xacro:property name="mass" value="0.3" /> <!-- [kg] -->
   <xacro:property name="body_width" value="0.3" /> <!-- [m] -->
   <xacro:property name="body_height" value="0.1" /> <!-- [m] -->
@@ -32,7 +32,7 @@
   <!-- Instantiate sensors -->
   <xacro:self_cap_sensor
     robot_namespace="${namespace}"
-    parent="${namespace}/base_link"
+    parent="${namespace}_skin"
     sensor_number="0"
     sensor_radius="0.0"
     sensor_length="0.057"
@@ -43,7 +43,7 @@
   </xacro:self_cap_sensor>
   <xacro:self_cap_sensor
     robot_namespace="${namespace}"
-    parent="${namespace}/base_link"
+    parent="${namespace}_skin"
     sensor_number="1"
     sensor_radius="0.0"
     sensor_length="0.048"
@@ -54,7 +54,7 @@
   </xacro:self_cap_sensor>
   <xacro:self_cap_sensor
     robot_namespace="${namespace}"
-    parent="${namespace}/base_link"
+    parent="${namespace}_skin"
     sensor_number="2"
     sensor_radius="0.0"
     sensor_length="0.060"
@@ -65,7 +65,7 @@
   </xacro:self_cap_sensor>
   <xacro:self_cap_sensor
     robot_namespace="${namespace}"
-    parent="${namespace}/base_link"
+    parent="${namespace}_skin"
     sensor_number="3"
     sensor_radius="0.0"
     sensor_length="0.059"
@@ -76,7 +76,7 @@
   </xacro:self_cap_sensor>
   <xacro:self_cap_sensor
     robot_namespace="${namespace}"
-    parent="${namespace}/base_link"
+    parent="${namespace}_skin"
     sensor_number="4"
     sensor_radius="0.0"
     sensor_length="0.059"
@@ -87,7 +87,7 @@
   </xacro:self_cap_sensor>
   <xacro:self_cap_sensor
     robot_namespace="${namespace}"
-    parent="${namespace}/base_link"
+    parent="${namespace}_skin"
     sensor_number="5"
     sensor_radius="0.0"
     sensor_length="0.025"
@@ -98,7 +98,7 @@
   </xacro:self_cap_sensor>
   <xacro:self_cap_sensor
     robot_namespace="${namespace}"
-    parent="${namespace}/base_link"
+    parent="${namespace}_skin"
     sensor_number="6"
     sensor_radius="0.0"
     sensor_length="0.023"
@@ -109,7 +109,7 @@
   </xacro:self_cap_sensor>
   <xacro:self_cap_sensor
     robot_namespace="${namespace}"
-    parent="${namespace}/base_link"
+    parent="${namespace}_skin"
     sensor_number="7"
     sensor_radius="0.0"
     sensor_length="0.023"

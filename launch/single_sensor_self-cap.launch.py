@@ -13,7 +13,7 @@ def generate_launch_description():
     robot_urdf_file = PathJoinSubstitution([
         FindPackageShare('gentact_ros_tools'),
         'urdf',
-        'fr3_plate_rviz.urdf'
+        'fr3_link6.urdf'
     ])
     robot_description = ParameterValue(Command(['cat ', robot_urdf_file]), value_type=str)
 
@@ -91,18 +91,21 @@ def generate_launch_description():
         name='cam_pub',
     )
 
-
     return LaunchDescription([
         DeclareLaunchArgument(
             'use_sim_time',
             default_value='false',
             description='Use simulation (Gazebo) clock if true'
         ),
-        TimerAction(period=0.0, actions=[rviz_node]),
-        TimerAction(period=2.0, actions=[robot_state_publisher_node]),
-        #TimerAction(period=3.0, actions=[joint_state_publisher_node]),
-        TimerAction(period=4.0, actions=[robot_st_base_node]),
-        TimerAction(period=5.0, actions=[camera_node]),
-        TimerAction(period=6.0, actions=[sensor_publisher_node]),
+        serial_port_arg,
+        baud_rate_arg,
+        num_sensors_arg,
+        publish_rate_arg,
+        TimerAction(period=0.0, actions=[robot_st_base_node]),
+        TimerAction(period=1.0, actions=[robot_state_publisher_node]),
+        TimerAction(period=1.5, actions=[joint_state_publisher_node]),
+        TimerAction(period=2.0, actions=[rviz_node]),
+        # TimerAction(period=5.0, actions=[camera_node]),
+        # TimerAction(period=6.0, actions=[sensor_publisher_node]),
 
     ])
