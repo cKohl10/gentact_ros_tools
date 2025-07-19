@@ -36,12 +36,13 @@ setup(
     maintainer_email='carson.kohlbrenner@gmail.com',
     description='TODO: Package description',
     license='TODO: License declaration',
-    tests_require=['pytest'],
     entry_points={
         'console_scripts': [
             'calibration_direct_pub = gentact_ros_tools.calibration_direct_pub:main',
             'sensor_publisher = gentact_ros_tools.sensor_publisher:main',
             'sensor_subscriber = gentact_ros_tools.sensor_subscriber:main',
+            'capacitive_pcl = gentact_ros_tools.capacitive_pcl:main',
+            'tuner = gentact_ros_tools.tuner:main',
         ],
     },
 )
