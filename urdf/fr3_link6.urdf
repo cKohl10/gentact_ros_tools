@@ -190,7 +190,7 @@
     </inertial>
   </link>
   <joint name="fr3_joint6" type="revolute">
-    <origin rpy="1.570796326794897 0 0" xyz="0 0 0"/>
+    <origin rpy="-1.570796326794897 0 0" xyz="0 0 0"/>
     <parent link="fr3_link5"/>
     <child link="fr3_link6"/>
     <axis xyz="0 0 1"/>
