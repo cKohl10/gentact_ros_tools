@@ -29,7 +29,7 @@ setup(
         (os.path.join('share', package_name, 'config'), glob('config/*')),
         (os.path.join('share', package_name, 'msg'), glob('gentact_ros_tools/msg/*.msg')),
     ] + get_data_files_recursive('meshes', os.path.join('share', package_name, 'meshes')) + get_data_files_recursive('urdf', os.path.join('share', package_name, 'urdf')),
-    install_requires=['setuptools', 'rclpy', 'std_msgs', 'sensor_msgs', 'tf2_ros', 'geometry_msgs', 'tf_transformations', 'tracikpy'],
+    install_requires=['setuptools', 'tf_transformations'],
     zip_safe=True,
     maintainer='carson',
     maintainer_email='carson.kohlbrenner@gmail.com',
@@ -51,6 +51,9 @@ setup(
             'ee_prediction_verifier = gentact_ros_tools.ee_prediction_verifier:main',
             'panda2fr3 = gentact_ros_tools.panda2fr3:main',
             'fake_obj_pub = gentact_ros_tools.fake_obj_pub:main',
+            'joint_state_test_pub = gentact_ros_tools.joint_state_test_pub:main',
+            'franky_relay = gentact_ros_tools.franky_relay:main',
+            'franky_xbox = gentact_ros_tools.franky_xbox:main',
         ],
     },
 )

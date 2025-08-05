@@ -1,3 +1,8 @@
+"""
+PURPOSE:
+    creates an obstacle that moves in a circle 
+    intended to be used with the avoidance controler
+"""
 import math
 import rclpy
 from rclpy.node import Node
@@ -15,10 +20,10 @@ class FakeObjPub(Node):
         )
 
         # Circular motion parameters
-        self.radius = 0.2  # meters
+        self.radius = 0.4  # meters
         self.center_x = 0.0
         self.center_y = 0.0
-        self.center_z = 1.0
+        self.center_z = 0.4
         self.angular_speed = 0.5  # radians per second
         self.current_angle = 0.0
         
