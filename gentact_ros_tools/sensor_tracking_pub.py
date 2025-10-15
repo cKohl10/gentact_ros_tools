@@ -11,6 +11,7 @@ class SensorTrackingPublisher(Node):
 
         self.tracking_status = False
         self.baseline_tracking_status = False
+        self.status = True
         
         # Declare parameters
         self.declare_parameter('num_sensors', 6)
@@ -62,6 +63,15 @@ class SensorTrackingPublisher(Node):
             Bool,
             '/sensor_tracking_status',
             self.tracking_status_callback,
+            # self.status_callback,
+            1
+        )
+
+        self.status_sub = self.create_subscription(
+            Bool,
+            '/sensor_active_status',
+            # self.tracking_status_callback,
+            self.status_callback,
             1
         )
 
@@ -106,6 +116,9 @@ class SensorTrackingPublisher(Node):
     
     def tracking_status_callback(self, msg: Bool):
         self.tracking_status = msg.data
+
+    def status_callback(self, msg: Bool):
+        self.status = msg.data
     
     def baseline_tracking_status_callback(self, msg: Bool):
         self.baseline_tracking_status = msg.data
@@ -230,74 +243,75 @@ class SensorTrackingPublisher(Node):
         """Process incoming sensor data"""
 
         self.sensor_data_received = True
-                
-        # Convert and validate sensor data
-        sensor_values = np.array(msg.data, dtype=float)
-        if len(sensor_values) != self.num_sensors:
-            # Resize array to match expected number of sensors
-            if len(sensor_values) > self.num_sensors:
-                sensor_values = sensor_values[:self.num_sensors]
+        if self.status:
+                    
+            # Convert and validate sensor data
+            sensor_values = np.array(msg.data, dtype=float)
+            if len(sensor_values) != self.num_sensors:
+                # Resize array to match expected number of sensors
+                if len(sensor_values) > self.num_sensors:
+                    sensor_values = sensor_values[:self.num_sensors]
+                else:
+                    sensor_values = np.pad(sensor_values, (0, self.num_sensors - len(sensor_values)))
+
+            if self.tracking_status and self.baseline_tracking_status:
+                try:
+                    # Check if baseline collection is complete
+                    if not self.collect_baseline(sensor_values):
+                        return  # Still collecting baseline
+                    
+                    # Update baseline slowly (tracks long-term drift)
+                    self.update_baseline(sensor_values)
+                    
+                    # Calculate calibrated values and update tracker
+                    calibrated_values = sensor_values - self.baseline_values
+                    tracked_values = self.update_tracker(calibrated_values)
+                    diff_values = self.get_diff()
+                    
+                    # Publish data (convert to integers)
+                    tracking_data = tracked_values
+                    self.tracking_publisher.publish(Int32MultiArray(
+                        data=np.round(tracking_data).astype(int).tolist()
+                    ))
+                    
+                    self.baseline_publisher.publish(Int32MultiArray(
+                        data=np.round(self.baseline_values).astype(int).tolist()
+                    ))
+                    
+                    # Debug logging
+                    self.get_logger().debug(f"Raw: {sensor_values}")
+                    self.get_logger().debug(f"Baseline: {self.baseline_values}")
+                    self.get_logger().debug(f"Tracked: {tracked_values}")
+                    
+                except Exception as e:
+                    self.get_logger().error(f"Error in sensor_callback: {e}")
+
+            elif not self.tracking_status and self.baseline_tracking_status:
+                self.sensor_data_received = True
+                try:
+                    # Check if baseline collection is complete
+                    if not self.collect_baseline(sensor_values):
+                        return  # Still collecting baseline
+                    
+                    # Update baseline slowly (tracks long-term drift)
+                    self.update_baseline(sensor_values)
+
+                    calibrated_values = sensor_values - self.baseline_values
+
+                    self.tracking_publisher.publish(Int32MultiArray(
+                        data=np.round(calibrated_values).astype(int).tolist()
+                    ))
+
+                    self.baseline_publisher.publish(Int32MultiArray(
+                        data=np.round(self.baseline_values).astype(int).tolist()
+                    ))
+                except Exception as e:
+                    self.get_logger().error(f"Error in sensor_callback: {e}")
             else:
-                sensor_values = np.pad(sensor_values, (0, self.num_sensors - len(sensor_values)))
-
-        if self.tracking_status and self.baseline_tracking_status:
-            try:
-                # Check if baseline collection is complete
-                if not self.collect_baseline(sensor_values):
-                    return  # Still collecting baseline
-                
-                # Update baseline slowly (tracks long-term drift)
-                self.update_baseline(sensor_values)
-                
-                # Calculate calibrated values and update tracker
-                calibrated_values = sensor_values - self.baseline_values
-                tracked_values = self.update_tracker(calibrated_values)
-                diff_values = self.get_diff()
-                
-                # Publish data (convert to integers)
-                tracking_data = tracked_values
                 self.tracking_publisher.publish(Int32MultiArray(
-                    data=np.round(tracking_data).astype(int).tolist()
-                ))
-                
-                self.baseline_publisher.publish(Int32MultiArray(
-                    data=np.round(self.baseline_values).astype(int).tolist()
-                ))
-                
-                # Debug logging
-                self.get_logger().debug(f"Raw: {sensor_values}")
-                self.get_logger().debug(f"Baseline: {self.baseline_values}")
-                self.get_logger().debug(f"Tracked: {tracked_values}")
-                
-            except Exception as e:
-                self.get_logger().error(f"Error in sensor_callback: {e}")
-
-        elif not self.tracking_status and self.baseline_tracking_status:
-            self.sensor_data_received = True
-            try:
-                # Check if baseline collection is complete
-                if not self.collect_baseline(sensor_values):
-                    return  # Still collecting baseline
-                
-                # Update baseline slowly (tracks long-term drift)
-                self.update_baseline(sensor_values)
-
-                calibrated_values = sensor_values - self.baseline_values
-
-                self.tracking_publisher.publish(Int32MultiArray(
-                    data=np.round(calibrated_values).astype(int).tolist()
-                ))
-
-                self.baseline_publisher.publish(Int32MultiArray(
-                    data=np.round(self.baseline_values).astype(int).tolist()
-                ))
-            except Exception as e:
-                self.get_logger().error(f"Error in sensor_callback: {e}")
-        else:
-            self.tracking_publisher.publish(Int32MultiArray(
-                    data=np.round(sensor_values).astype(int).tolist()
-                ))
-            self.sensor_values = sensor_values.copy()
+                        data=np.round(sensor_values).astype(int).tolist()
+                    ))
+                self.sensor_values = sensor_values.copy()
 
 
 

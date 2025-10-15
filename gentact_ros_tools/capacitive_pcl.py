@@ -343,6 +343,7 @@ class CapacitivePCL(Node):
             if len(sensor_values) < self.num_sensors:
                 self.get_logger().debug(f"Received {len(sensor_values)} sensor values, expected {self.num_sensors}")
             dist_values = []
+            valid_dist_values = [0] * self.num_sensors
             all_sensor_points = []  # in sensor frames
             combined_points_map = []  # transformed to output frame
             raw_dist_values = []
@@ -371,6 +372,7 @@ class CapacitivePCL(Node):
                     # Within range: use actual distance
                     sensor_points[2] = distance
                     self.get_logger().debug(f"Sensor {i} within range: {distance:.6f}m")
+                    valid_dist_values[i] = distance
                 else:
                     # Out of range: publish at -0.2 * max_distance
                     sensor_points[2] = 10000 * self.max_distance
@@ -398,6 +400,7 @@ class CapacitivePCL(Node):
             self.dist_pub.publish(dist_msg)
             
             # self.get_logger().debug(f"Published pointclouds for {num_available} sensors")
+            num_valid_sensors = len([dist for dist in valid_dist_values if dist > 0])
 
             # Publish combined point cloud in output frame
             if len(combined_points_map) > 0:
@@ -406,11 +409,11 @@ class CapacitivePCL(Node):
                 self.combined_pcl_pub.publish(combined_msg)
 
             # Get lowest distance sensor (only if we have valid distance values)
-            if len(raw_dist_values) > 0:
+            if num_valid_sensors > 1:
                 min_distance_sensor = np.argmin(raw_dist_values)
                 min_distance = raw_dist_values[min_distance_sensor]
-                # self.get_logger().info(f"Lowest distance sensor: {min_distance_sensor}")
 
+                # self.get_logger().info(f"Lowest distance sensor: {min_distance_sensor}"
                 if min_distance < self.max_distance:
                     msg = self.get_obstacle_pose(min_distance_sensor, all_sensor_points[min_distance_sensor])
                     self.obstacle_pub.publish(msg)

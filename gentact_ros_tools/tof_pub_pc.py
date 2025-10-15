@@ -152,7 +152,7 @@ class MinimalPublisher(Node):
                 angles_X, angles_Y = np.meshgrid(angles_x, angles_y)
                 
                 #normalize distance from sensor measurement by 4 m
-                #b/c max distance sensor can read is 4m
+                #b/c max distance sensor can read is 4mS
                 z_offset = (data_grid_8x8.astype(np.float64) / 1000) 
                 z_offset[z_offset == 0.0] = 4.0
                 x_offset, y_offset = self.calculate_grid_size(z_offset, angles_X, angles_Y)

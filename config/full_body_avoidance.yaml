@@ -46,6 +46,7 @@ sensors:
     xacro: "../skin/link4_fancy.xacro" # Defined relative to the gentact_ros_tools package. Leave empty to not display.
     wireless: false
     port: ''
+    multiplier: [1.0,1.0,1.0,1.0,100000.0,1.0]
   link5_skin:
     active: true
     type: "SPAD"
