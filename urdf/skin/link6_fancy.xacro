@@ -32,7 +32,7 @@
     <xacro:self_cap_sensor
       robot_namespace="${namespace}"
       parent="${namespace}_skin"
-      sensor_number="0"
+      sensor_number="2"
       sensor_radius="${sensor_radius}"
       sensor_length="0.057"
       normal_x="0.474"
@@ -43,7 +43,7 @@
     <xacro:self_cap_sensor
       robot_namespace="${namespace}"
       parent="${namespace}_skin"
-      sensor_number="1"
+      sensor_number="0"
       sensor_radius="${sensor_radius}"
       sensor_length="0.048"
       normal_x="0.885"
@@ -54,7 +54,7 @@
     <xacro:self_cap_sensor
       robot_namespace="${namespace}"
       parent="${namespace}_skin"
-      sensor_number="2"
+      sensor_number="3"
       sensor_radius="${sensor_radius}"
       sensor_length="0.060"
       normal_x="0.991"
@@ -65,7 +65,7 @@
     <xacro:self_cap_sensor
       robot_namespace="${namespace}"
       parent="${namespace}_skin"
-      sensor_number="3"
+      sensor_number="6"
       sensor_radius="${sensor_radius}"
       sensor_length="0.059"
       normal_x="0.477"
@@ -76,7 +76,7 @@
     <xacro:self_cap_sensor
       robot_namespace="${namespace}"
       parent="${namespace}_skin"
-      sensor_number="4"
+      sensor_number="5"
       sensor_radius="${sensor_radius}"
       sensor_length="0.059"
       normal_x="0.888"
@@ -87,7 +87,7 @@
     <xacro:self_cap_sensor
       robot_namespace="${namespace}"
       parent="${namespace}_skin"
-      sensor_number="5"
+      sensor_number="4"
       sensor_radius="${sensor_radius}"
       sensor_length="0.025"
       normal_x="0.995"
@@ -98,7 +98,7 @@
     <xacro:self_cap_sensor
       robot_namespace="${namespace}"
       parent="${namespace}_skin"
-      sensor_number="6"
+      sensor_number="1"
       sensor_radius="${sensor_radius}"
       sensor_length="0.023"
       normal_x="0.776"

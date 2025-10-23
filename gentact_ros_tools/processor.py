@@ -13,6 +13,7 @@ import tf2_ros
 from geometry_msgs.msg import TransformStamped
 import csv
 import os
+from rclpy.duration import Duration
 
 
 class Processor(Node):
@@ -22,6 +23,9 @@ class Processor(Node):
         self.output_file = f'data.csv'
         self.declare_parameter('num_sensors', 6)
         self.num_sensors = self.get_parameter('num_sensors').get_parameter_value().integer_value
+        
+        # TF lookup timeout and helper settings
+        self.tf_timeout = Duration(seconds=0.2)
         
         # TF2 setup
         self.tf_buffer = tf2_ros.Buffer()
@@ -80,12 +84,10 @@ class Processor(Node):
         """Calculate the cartesian distance between end_effector_tip and calibration_sensor_1"""
         
         try:
-            # Get the transform from end_effector_tip to calibration_sensor_1
-            transform = self.tf_buffer.lookup_transform(
-                ee_tf,
-                sensor_tf,
-                rclpy.time.Time()
-            )
+            # Get the latest available transform from sensor_tf to ee_tf
+            transform = self._lookup_latest_transform(ee_tf, sensor_tf)
+            if transform is None:
+                return -1.0
             
             # Extract translation components
             translation = transform.transform.translation
@@ -95,8 +97,32 @@ class Processor(Node):
             distance = math.sqrt(x**2 + y**2 + z**2)
             return distance
         except Exception as e:
-            self.get_logger().error(f"Error calculating distance: {str(e)}")
+            self.get_logger().warning(f"Error calculating distance: {str(e)}")
             return -1.0
+    
+    def _lookup_latest_transform(self, target_frame: str, source_frame: str):
+        """Return the most recent transform available in the buffer or None.
+        Uses a short timeout and avoids interpolation requests by asking for time=0.
+        """
+        try:
+            # Ask for the latest available transform (time=0) and wait briefly
+            if self.tf_buffer.can_transform(target_frame, source_frame, rclpy.time.Time(), self.tf_timeout):
+                return self.tf_buffer.lookup_transform(
+                    target_frame,
+                    source_frame,
+                    rclpy.time.Time(),
+                    self.tf_timeout,
+                )
+            else:
+                self.get_logger().warning(
+                    f"Transform not available yet: {source_frame} -> {target_frame}"
+                )
+                return None
+        except Exception as e:
+            self.get_logger().warning(
+                f"TF lookup failed for {source_frame} -> {target_frame}: {str(e)}"
+            )
+            return None
     
     def write_to_csv(self, log):
         """Write distance data to CSV file"""
