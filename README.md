@@ -1,26 +1,7 @@
 # gentact_ros_tools
+This package contains nodes for interfacing with GenTact made skin units
 
-Install this ros2 package to visualize GenTact sensors as URDFs
-
-# To run the spad skin + sensors:
-```bash
-ros2 launch gentact_ros_tools spad2.launch.py config:=spad.yaml
+## Launch the robot
 ```
-# To run controller (to get the robot model working):
-
-Make sure your controller is on before running this
-
-```bash
-ros2 run gentact_ros_tools franky_xbox
-```
-# To launch sensors (outside of this package):
-
-Make sure the sensors are powered on before running this. If you don't get data outputting, try resetting your microcontroller or using a different battery.  
-
-```bash 
-ros2 run udp_tof_listener udp_grid_listener_array 
-```
-
-```bash
-ros2 run pointcloud talker
+source franka_ros2_ws
 ```

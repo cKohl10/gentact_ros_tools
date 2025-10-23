@@ -1,12 +1,18 @@
 robot:
   arm_id: "fr3"
-  joint_relay: false
+  arm_prefix: "" # Reserved for future use (e.g., robot unique prefix)
+  fake_sensor_commands: "false" # Enable fake sensor commands for simulation
+  joint_state_rate: 30 # Publishing rate for joint states (Hz)
+  load_gripper: "true" # Enable Franka Gripper ("true" or "false")
+  namespace: "" # Namespace for robot, any string (empty string allowed - meaningful names recommended)
+  robot_ip: "192.168.0.100" # Robot's IP address or hostname
+  urdf_file: "fr3/fr3_full_skin.urdf.xacro" # Relative path to URDF in franka_description/robots
+  use_fake_hardware: "false" # Use simulated hardware ("true" or "false")
+  use_rviz: "false" # Launch RViz if "true" (single instance for all namespaces)
   joint_publisher: false
-  robot_ip: "192.168.0.100" # Only used for joint relay. Ignore if joint relay is false.
-  robot_xacro: "urdf/robot/fr3_full_skin.xacro" # Make sure the skin xacros are included in this file!
-  end_effector:
-    active: true
-    xacro: "../end_effectors/sphere_ee.xacro" # Defined relative to the robot xacro file
+  # end_effector:
+  #   active: true
+  #   xacro: "../end_effectors/sphere_ee.xacro" # Defined relative to the robot xacro file
 
 
 controller:
@@ -87,7 +93,7 @@ prediction:
 visualization:
   rviz: false
   rviz_config: "/home/caleb/.rviz2/hybrid.rviz" # ignore if rviz is false
-  foxglove: true
+  foxglove: false
 
 tracker:
   active: true

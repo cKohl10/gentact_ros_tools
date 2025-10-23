@@ -25,59 +25,7 @@ def load_config(config_file_name, context):
     
     return config
 
-def build_robot_description(config):
-    """Build URDF arguments based on active sensors in config"""
-    urdf_args = []
-    
-    # Loop through all sensors in the config
-    for sensor_key, sensor_config in config['sensors'].items():
-        if isinstance(sensor_config, dict) and sensor_config.get('xacro', '') != '':
-            xacro_path = sensor_config.get('xacro', '')
-            urdf_args.extend([f' {sensor_key}:=', xacro_path])
-
-    # Add end effector mesh if specified in config
-    if isinstance(config['robot']['end_effector'], dict) and config['robot']['end_effector'].get('active', False):
-        ee_xacro = config['robot']['end_effector'].get('xacro', '')
-        if ee_xacro:
-            urdf_args.extend([' ee_xacro_file:=', ee_xacro])
-    
-    urdf_file = PathJoinSubstitution([FindPackageShare('gentact_descriptions'), config['robot']['robot_xacro']])
-    xacro_command = ['xacro ', urdf_file] + urdf_args
-    robot_description = ParameterValue(
-        Command(xacro_command), 
-        value_type=str
-    )
-
-    return robot_description
-
-def build_robot(config, use_sim_time, robot_description):
-    robot_nodes = []
-
-    robot_nodes.append(Node(
-        package='robot_state_publisher',
-        executable='robot_state_publisher',
-        name=f'{config["robot"]["arm_id"]}_robot_state_publisher',
-        output='screen',
-        parameters=[{'use_sim_time': use_sim_time, 'robot_description': robot_description}],
-    ))
-    robot_nodes.append(Node(
-        package='tf2_ros',
-        executable='static_transform_publisher',
-        name='robot_static_transform_publisher',
-        output='screen',
-        arguments=['0', '0', '0', '0', '0', '0', 'map', 'base']
-    ))
-    if config['robot']['joint_publisher']:
-        robot_nodes.append(Node(
-            package='joint_state_publisher',
-            executable='joint_state_publisher',
-            name='robot_joint_states',
-            output='screen',
-            parameters=[{'use_sim_time': use_sim_time}]
-        ))
-    return robot_nodes
-
-def build_controller_nodes(config, robot_description):
+def build_controller_nodes(config):
     controller_nodes = []
     param_file = PathJoinSubstitution([
         FindPackageShare('hiro_collision_avoidance_ros2'),
@@ -93,7 +41,7 @@ def build_controller_nodes(config, robot_description):
             executable='Main',
             name='avoidance_controller',
             output='screen',
-            parameters=[param_file, {'avoidance_type': avoidance_type, 'movement_type': movement_type, 'robot_description': robot_description}],
+            parameters=[param_file, {'avoidance_type': avoidance_type, 'movement_type': movement_type}],
         )
         )
     return controller_nodes
@@ -149,9 +97,7 @@ def launch_setup(context, *args, **kwargs):
     use_sim_time = LaunchConfiguration('use_sim_time')
 
     # Build robot description
-    robot_description = build_robot_description(config)
-    robot_nodes = build_robot(config, use_sim_time, robot_description)
-    controller_nodes = build_controller_nodes(config, robot_description)
+    controller_nodes = build_controller_nodes(config)
     sim_nodes = build_sim_nodes(config)
     viz_nodes = build_viz_nodes(config)
     
