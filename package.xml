@@ -7,13 +7,17 @@
   <maintainer email="carson.kohlbrenner@gmail.com">carson</maintainer>
   <license>TODO: License declaration</license>
 
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>ament_cmake_python</buildtool_depend>
+
+  <depend>rclcpp</depend>
   <depend>rclpy</depend>
-  <depend>rosidl_default_generators</depend>
   <depend>std_msgs</depend>
-  <depend>tf2_ros</depend>
-  <depend>geometry_msgs</depend>
   <depend>sensor_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>tf2_ros</depend>
   <depend>tf_transformations</depend>
+  <depend>boost</depend>
   <!-- <depend>tracikpy</depend> -->
 
   <test_depend>ament_copyright</test_depend>
@@ -22,7 +26,6 @@
   <test_depend>python3-pytest</test_depend>
 
   <export>
-    <build_type>ament_python</build_type>
-    <buildtool_depend>rosidl_default_generators</buildtool_depend>
+    <build_type>ament_cmake</build_type>
   </export>
 </package>

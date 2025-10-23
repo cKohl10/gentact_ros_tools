@@ -55,7 +55,7 @@ def build_robot_description(config):
         if ee_xacro:
             urdf_args.extend([' ee_xacro_file:=', ee_xacro])
     
-    urdf_file = PathJoinSubstitution([FindPackageShare('gentact_ros_tools'), config['robot']['robot_xacro']])
+    urdf_file = PathJoinSubstitution([FindPackageShare('gentact_descriptions'), config['robot']['robot_xacro']])
     xacro_command = ['xacro ', urdf_file] + urdf_args
     robot_description = ParameterValue(
         Command(xacro_command), 
