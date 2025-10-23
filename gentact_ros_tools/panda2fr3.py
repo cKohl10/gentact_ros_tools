@@ -33,6 +33,7 @@ class Panda2Fr3(Node):
             self.joint_pub.publish(joint_state_msg)
         except Exception as e:
             self.get_logger().error(f'Error in joint_callback: {e}')
+            self.get_logger().error(f'msg: {msg}')
 
 def main(args=None):
     rclpy.init(args=args)

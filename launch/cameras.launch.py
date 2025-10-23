@@ -5,22 +5,33 @@ from launch.substitutions import Command, LaunchConfiguration, PathJoinSubstitut
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 from launch_ros.parameter_descriptions import ParameterValue
+from launch.conditions import IfCondition
 
 
 def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time', default='false')
 
-    camera_node = Node(
+    camera_left = Node(
         package='realsense2_camera',
         executable='realsense2_camera_node',
-        name='cam_pub',
+        namespace='left_camera',
+        name='left_cam',
+        parameters=[{'serial_no': '836612071883'}],
+    )
+
+    camera_right = Node(
+        package='realsense2_camera',
+        executable='realsense2_camera_node',
+        namespace='right_camera',
+        name='right_cam',
+        parameters=[{'serial_no': '832112072986'}],
     )
 
     webcam_node = Node(
         package='camera_tools',
         executable='basic_camera_node',
         name='webcam',
-        arguments=['-c', '4']
+        arguments=['-c', '0']
     )
 
     return LaunchDescription([
@@ -29,6 +40,7 @@ def generate_launch_description():
             default_value='false',
             description='Use simulation (Gazebo) clock if true'
         ),
-        camera_node,
+        # camera_left,
+        # camera_right,
         webcam_node,
     ])

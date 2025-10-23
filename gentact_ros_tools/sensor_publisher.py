@@ -15,6 +15,7 @@ class SensorPublisher(Node):
         self.declare_parameter('publish_rate', 30.0)  # Hz
         self.declare_parameter('startup_timeout', 3.0)  # seconds
         self.declare_parameter('calibration_duration', 3.0)  # seconds
+        self.declare_parameter('skin_name', '')
         
         # Get parameters
         self.serial_port = self.get_parameter('serial_port').get_parameter_value().string_value
@@ -22,21 +23,33 @@ class SensorPublisher(Node):
         self.publish_rate = self.get_parameter('publish_rate').get_parameter_value().double_value
         self.startup_timeout = self.get_parameter('startup_timeout').get_parameter_value().double_value
         self.calibration_duration = self.get_parameter('calibration_duration').get_parameter_value().double_value
+        self.skin_name = self.get_parameter('skin_name').get_parameter_value().string_value
         self.last_data = []
         self.baseline_data = None
         
         # Initialize publisher
-        self.publisher = self.create_publisher(
-            Int32MultiArray, 
-            '/sensor_raw', 
-            1
-        )
-
-        self.baseline_pub = self.create_publisher(
-            Int32MultiArray,
-            '/sensor_baseline',
-            1
-        )
+        if self.skin_name == '':
+            self.publisher = self.create_publisher(
+                Int32MultiArray, 
+                '/sensor_raw', 
+                1
+            )
+            self.baseline_pub = self.create_publisher(
+                Int32MultiArray,
+                '/sensor_baseline',
+                1
+            )
+        else:
+            self.publisher = self.create_publisher(
+                Int32MultiArray, 
+                f'/sensor_raw_{self.skin_name}', 
+                1
+            )
+            self.baseline_pub = self.create_publisher(
+                Int32MultiArray,
+                f'/sensor_baseline_{self.skin_name}',
+                1
+            )
         
         # Initialize serial connection
         try:
@@ -56,6 +69,18 @@ class SensorPublisher(Node):
         self.timer = self.create_timer(1.0 / self.publish_rate, self.publish_sensor_data)
         
         self.get_logger().info("Sensor publisher initialized and ready")
+
+    def format_sensor_data(self, data):
+        try:
+            data_str = data.decode('utf-8').strip()
+            first_element = data_str.split(',')[0].strip()
+            if first_element and 'S' in first_element:
+                return np.array([int(x.strip()) for x in data_str.split(',')[1:] if x.strip()])
+            return np.array([int(x.strip()) for x in data_str.split(',') if x.strip()]) 
+        except Exception as e:
+            self.get_logger().error(f"Error formatting sensor data: {e}")
+            return []
+
     
     def perform_calibration(self):
         """Collect sensor data for 3 seconds and calculate baseline average"""
@@ -78,16 +103,9 @@ class SensorPublisher(Node):
             try:
                 if self.serial.in_waiting > 0:
                     data = self.serial.readline()
-                    data_str = data.decode('utf-8').strip()
-                    
-                    # Try to parse the data
-                    try:
-                        read_numbers = np.array([int(x.strip()) for x in data_str.split(',') if x.strip()])
-                        if len(read_numbers) >= self.num_sensors:
-                            calibration_data.append(read_numbers[:self.num_sensors])
-                    except ValueError:
-                        # Invalid data, continue
-                        continue
+                    read_numbers = self.format_sensor_data(data)
+                    if len(read_numbers) >= self.num_sensors:
+                        calibration_data.append(read_numbers[:self.num_sensors])
                         
             except serial.SerialException as e:
                 self.get_logger().warn(f"Serial error during calibration: {e}")
@@ -131,18 +149,12 @@ class SensorPublisher(Node):
             try:
                 if self.serial.in_waiting > 0:
                     data = self.serial.readline()
-                    data_str = data.decode('utf-8').strip()
+                    read_numbers = self.format_sensor_data(data)
                     
-                    # Try to parse the data
-                    try:
-                        read_numbers = np.array([int(x.strip()) for x in data_str.split(',') if x.strip()])
-                        if len(read_numbers) >= self.num_sensors:
-                            self.last_data = read_numbers[:self.num_sensors]
-                            self.get_logger().info(f"Received first valid reading: {self.last_data}")
-                            return
-                    except ValueError:
-                        # Invalid data, continue waiting
-                        continue
+                    if len(read_numbers) >= self.num_sensors:
+                        self.last_data = read_numbers[:self.num_sensors]
+                        self.get_logger().info(f"Received first valid reading: {self.last_data}")
+                        return
                         
             except serial.SerialException as e:
                 self.get_logger().warn(f"Serial error while waiting: {e}")
@@ -160,17 +172,9 @@ class SensorPublisher(Node):
             # Check if data is available
             if self.serial.in_waiting > 0:
                 data = self.serial.readline()
-                # Decode bytes to string and strip whitespace
-                data_str = data.decode('utf-8').strip()
-                
-                # Split by comma and convert to integers
-                try:
-                    read_numbers = np.array([int(x.strip()) for x in data_str.split(',') if x.strip()])
-                    if len(read_numbers) >= self.num_sensors:
-                        self.last_data = read_numbers[:self.num_sensors]
-                except ValueError:
-                    # Return last valid data if conversion fails
-                    pass
+                read_numbers = self.format_sensor_data(data)
+                if len(read_numbers) >= self.num_sensors:
+                    self.last_data = read_numbers[:self.num_sensors]
                     
         except serial.SerialException as e:
             self.get_logger().warn(f"Serial read error: {e}")

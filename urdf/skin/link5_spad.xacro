@@ -6,12 +6,12 @@
   <xacro:macro name="link5_skin" params="parent namespace">
     <!-- Properties -->
     <xacro:property name="use_mesh_file" value="true" />
-    <xacro:property name="mesh_file" value="package://gentact_ros_tools/meshes/skin/link5_spad.stl" />
+    <xacro:property name="mesh_file" value="package://gentact_ros_tools/meshes/skin/spad/link5_spad.stl" />
     <xacro:property name="mass" value="0.3" /> <!-- [kg] -->
     <xacro:property name="body_width" value="0.3" /> <!-- [m] -->
     <xacro:property name="body_height" value="0.1" /> <!-- [m] -->
     <xacro:property name="sensor_length" value="0.05" /> <!-- [m] -->
-    <xacro:property name="sensor_radius" value="0.0" /> <!-- [m] -->
+    <xacro:property name="sensor_radius" value="0.005" /> <!-- [m] -->
 
     <!-- Included URDF Files -->
     <xacro:include filename="$(find gentact_ros_tools)/urdf/skin/self-cap-base.xacro" />
@@ -38,7 +38,7 @@
       normal_x="-0.045"
       normal_y="-0.002"
       normal_z="0.999">
-      <origin xyz="0.0 -0.064 0.054" rpy="0.002 -0.045 0.0" />
+      <origin xyz="0.0 -0.039 0.054" rpy="0.002 -0.045 0.0" />
     </xacro:self_cap_sensor>
     <xacro:self_cap_sensor
       robot_namespace="${namespace}"
@@ -49,7 +49,7 @@
       normal_x="-0.039"
       normal_y="0.084"
       normal_z="0.996">
-      <origin xyz="-0.002 -0.105 0.058" rpy="-0.084 -0.039 0.002" />
+      <origin xyz="-0.002 -0.080 0.058" rpy="-0.084 -0.039 0.002" />
     </xacro:self_cap_sensor>
     <xacro:self_cap_sensor
       robot_namespace="${namespace}"
@@ -60,7 +60,7 @@
       normal_x="-0.045"
       normal_y="-0.031"
       normal_z="0.998">
-      <origin xyz="-0.002 -0.022 0.055" rpy="0.031 -0.045 -0.001" />
+      <origin xyz="-0.002 0.003 0.055" rpy="0.031 -0.045 -0.001" />
     </xacro:self_cap_sensor>
     <xacro:self_cap_sensor
       robot_namespace="${namespace}"
@@ -71,7 +71,7 @@
       normal_x="0.379"
       normal_y="-0.002"
       normal_z="0.925">
-      <origin xyz="0.023 0.033 0.052" rpy="0.002 0.389 0.0" />
+      <origin xyz="0.023 0.058 0.052" rpy="0.002 0.389 0.0" />
     </xacro:self_cap_sensor>
     <xacro:self_cap_sensor
       robot_namespace="${namespace}"
@@ -82,7 +82,7 @@
       normal_x="0.866"
       normal_y="-0.368"
       normal_z="0.34">
-      <origin xyz="0.047 -0.133 0.026" rpy="0.825 1.046 0.494" />
+      <origin xyz="0.047 -0.108 0.026" rpy="0.825 1.046 0.494" />
     </xacro:self_cap_sensor>
     <xacro:self_cap_sensor
       robot_namespace="${namespace}"
@@ -93,7 +93,7 @@
       normal_x="0.049"
       normal_y="0.408"
       normal_z="0.912">
-      <origin xyz="0.003 0.098 0.043" rpy="0.421 -0.049 0.01" />
+      <origin xyz="0.003 0.123 0.043" rpy="0.421 -0.049 0.01" />
     </xacro:self_cap_sensor>
     <xacro:self_cap_sensor
       robot_namespace="${namespace}"
@@ -104,7 +104,7 @@
       normal_x="-0.097"
       normal_y="-0.783"
       normal_z="0.615">
-      <origin xyz="-0.004 -0.155 0.044" rpy="0.905 -0.097 -0.047" />
+      <origin xyz="-0.004 -0.130 0.044" rpy="0.905 -0.097 -0.047" />
     </xacro:self_cap_sensor>
     <xacro:self_cap_sensor
       robot_namespace="${namespace}"
@@ -115,7 +115,7 @@
       normal_x="-0.367"
       normal_y="0.002"
       normal_z="0.93">
-      <origin xyz="-0.019 0.034 0.054" rpy="-0.002 -0.376 0.0" />
+      <origin xyz="-0.019 0.059 0.054" rpy="-0.002 -0.376 0.0" />
     </xacro:self_cap_sensor>
   </xacro:macro>
 

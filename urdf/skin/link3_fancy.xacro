@@ -65,7 +65,7 @@
     <xacro:self_cap_sensor
       robot_namespace="${namespace}"
       parent="${namespace}_skin"
-      sensor_number="7"
+      sensor_number="6"
       sensor_radius="${sensor_radius}"
       sensor_length="0.05"
       normal_x="0.386"
@@ -76,7 +76,7 @@
     <xacro:self_cap_sensor
       robot_namespace="${namespace}"
       parent="${namespace}_skin"
-      sensor_number="6"
+      sensor_number="7"
       sensor_radius="${sensor_radius}"
       sensor_length="0.05"
       normal_x="-0.239"
