@@ -87,6 +87,12 @@ from launch_ros.substitutions import FindPackageShare
 def generate_robot_nodes(context):
     load_gripper_launch_configuration = LaunchConfiguration('load_gripper').perform(context)
     load_gripper = load_gripper_launch_configuration.lower() == 'true'
+    use_fake_hardware_launch_configuration = LaunchConfiguration('use_fake_hardware').perform(context)
+    use_fake_hardware = use_fake_hardware_launch_configuration.lower() == 'true'
+    enable_gazebo_launch_configuration = LaunchConfiguration('enable_gazebo').perform(context)
+    enable_gazebo = enable_gazebo_launch_configuration.lower() == 'true'
+    gazebo_flag = 'true' if enable_gazebo else 'false'
+    gazebo_effort_flag = 'true' if enable_gazebo else 'false'
     urdf_path = PathJoinSubstitution([
         FindPackageShare('gentact_descriptions'), 'robots',LaunchConfiguration('urdf_file')
     ]).perform(context)
@@ -98,8 +104,10 @@ def generate_robot_nodes(context):
             'arm_prefix': LaunchConfiguration('arm_prefix').perform(context),
             'robot_ip': LaunchConfiguration('robot_ip').perform(context),
             'hand': load_gripper_launch_configuration,
-            'use_fake_hardware': LaunchConfiguration('use_fake_hardware').perform(context),
+            'use_fake_hardware': use_fake_hardware_launch_configuration,
             'fake_sensor_commands': LaunchConfiguration('fake_sensor_commands').perform(context),
+            'gazebo': gazebo_flag,
+            'gazebo_effort': gazebo_effort_flag,
             'link1_skin': LaunchConfiguration('link1_skin').perform(context),
             'link2_skin': LaunchConfiguration('link2_skin').perform(context),
             'link3_skin': LaunchConfiguration('link3_skin').perform(context),
@@ -219,6 +227,9 @@ def generate_launch_description():
                                     "controllers.yaml"
                                 ]),
                               description='Override the default controllers.yaml file.'),
+        DeclareLaunchArgument('enable_gazebo',
+                              default_value='false',
+                              description='Enable Gazebo-specific elements in the generated URDF'),
         DeclareLaunchArgument('link1_skin',
                               default_value='',
                               description='Link 1 skin'),

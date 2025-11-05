@@ -123,7 +123,7 @@ def generate_robot_nodes(context):
                 executable='rviz2',
                 name='rviz2',
                 arguments=['--display-config', PathJoinSubstitution([
-                    FindPackageShare('franka_description'), 'rviz', 'visualize_franka.rviz'
+                    FindPackageShare('franka_descriptions'), 'rviz', 'visualize_franka.rviz'
                 ])],
                 output='screen',
             )

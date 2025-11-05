@@ -60,6 +60,7 @@ setup(
             'franka_ros2_controller = gentact_ros_tools.franka_ros2_controller:main',
             'joint_states_monitor = gentact_ros_tools.joint_states_monitor:main',
             'test_talker = gentact_ros_tools.test_talker:main',
+            'sin_movement_test = gentact_ros_tools.sin_movement_test:main',
         ],
     },
 )
