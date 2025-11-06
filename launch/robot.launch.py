@@ -83,7 +83,7 @@ def generate_robot_nodes(context):
         'urdf_file': str(robot_config['urdf_file']),
         'robot_ip': str(robot_config['robot_ip']),
         'load_gripper': str(robot_config['load_gripper']),
-        'use_fake_hardware': str(robot_config['use_fake_hardware']),
+        # 'use_fake_hardware': str(robot_config['use_fake_hardware']),
         'fake_sensor_commands': str(robot_config['fake_sensor_commands']),
         'joint_state_rate': str(robot_config['joint_state_rate']),
     }

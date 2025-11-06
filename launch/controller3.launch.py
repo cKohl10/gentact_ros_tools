@@ -27,12 +27,12 @@ def load_config(config_file_name, context):
 
 def build_controller_nodes(config):
     controller_nodes = []
-    param_file = PathJoinSubstitution([
-        FindPackageShare('hiro_collision_avoidance_ros2'),
-        'config',
-        'fr3.yaml',
-    ])
     if config['controller']['active']:
+        param_file = PathJoinSubstitution([
+            FindPackageShare('hiro_collision_avoidance_ros2'),
+            'config',
+            'fr3.yaml',
+        ])
         avoidance_type = config['controller']['avoidance_type']
         movement_type = config['controller']['movement_type']
         sim = config['controller']['use_sim']
@@ -50,34 +50,52 @@ def build_robot_nodes(config):
     robot_nodes = []
     use_sim = bool(config['controller'].get('use_sim', False))
     sim_flag = 'true' if use_sim else 'false'
-    launch_arguments = {
-        'arm_id': str(config['robot']['arm_id']),
-        'arm_prefix': str(config['robot']['arm_prefix']),
-        'namespace': str(config['robot']['namespace']),
-        'urdf_file': str(config['robot']['urdf_file']),
-        'robot_ip': str(config['robot']['robot_ip']),
-        'load_gripper': str(config['robot']['load_gripper']),
-        'use_fake_hardware': str(config['robot']['use_fake_hardware']),
-        'fake_sensor_commands': str(config['robot']['fake_sensor_commands']),
-        'joint_state_rate': str(config['robot']['joint_state_rate']),
-        'enable_gazebo': sim_flag,
-    }
+    launch_arguments = {}
     for sensor_key, sensor_config in config['sensors'].items():
         if isinstance(sensor_config, dict) and sensor_config.get('xacro', '') != '':
             xacro_path = sensor_config.get('xacro', '')
             launch_arguments[f'{sensor_key}'] = xacro_path
 
     namespace = config['robot']['namespace']
-    robot_nodes.append(
-        IncludeLaunchDescription(
+
+    if use_sim:
+        launch_arguments.update({
+            'arm_id': str(config['robot']['arm_id']),
+            'arm_prefix': str(config['robot']['arm_prefix']),
+            'namespace': str(config['robot']['namespace']),
+            'urdf_file': str(config['robot']['urdf_file']),
+            'ee_id': str(config['robot']['ee_id']),
+            'load_gripper': str(config['robot']['load_gripper']),
+        })
+        robot_nodes.append(IncludeLaunchDescription(
             PythonLaunchDescriptionSource(
                 PathJoinSubstitution([
-                    FindPackageShare('gentact_ros_tools'), 'launch', 'franka.launch.py'
+                    FindPackageShare('gentact_ros_tools'), 'launch', 'simulation.launch.py'
                 ])
             ),
             launch_arguments=launch_arguments.items(),
-        )
-    )
+        ))
+    else:
+        launch_arguments.update({
+            'arm_id': str(config['robot']['arm_id']),
+            'arm_prefix': str(config['robot']['arm_prefix']),
+            'namespace': str(config['robot']['namespace']),
+            'urdf_file': str(config['robot']['urdf_file']),
+            'robot_ip': str(config['robot']['robot_ip']),
+            'load_gripper': str(config['robot']['load_gripper']),
+            # 'use_fake_hardware': str(config['robot']['use_fake_hardware']),
+            'fake_sensor_commands': str(config['robot']['fake_sensor_commands']),
+            'joint_state_rate': str(config['robot']['joint_state_rate']),
+            'enable_gazebo': sim_flag,
+        })
+        robot_nodes.append(IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                PathJoinSubstitution([
+                    FindPackageShare('gentact_ros_tools'), 'launch', 'franka.launch.py'
+                    ])
+                ),
+                launch_arguments=launch_arguments.items(),
+            ))
     
     # Only spawn the controller if it's active
     if config['controller']['active']:
@@ -107,54 +125,34 @@ def build_robot_nodes(config):
                 output='screen',
             )
         )
+
+        
     return robot_nodes
 
-def build_sim_nodes(config):
-    sim_nodes = []
-    if config['controller']['use_sim']:
-        empty_world_launch = IncludeLaunchDescription(
-        PathJoinSubstitution([FindPackageShare('gazebo_ros'), 'launch', 'gazebo.launch.py']),
-        launch_arguments={
-            'gui': 'true',
-            'pause': 'true',
-        }.items(),
-        )
-
-        urdf_spawner_node = Node(
-        package='gazebo_ros',
-        executable='spawn_entity.py',
-        name='urdf_spawner',
-        arguments=['-topic', '/robot_description', '-entity', 'robot', '-z', '0.0', '-unpause'],
-        output='screen',
-        )
-        sim_nodes.append(empty_world_launch)
-        sim_nodes.append(urdf_spawner_node)
-    return sim_nodes
-
-def build_viz_nodes(config):
-    viz_nodes = []
-    if config['visualization']['rviz']:
-        viz_nodes.append(Node(
-            package='rviz2',
-            executable='rviz2',
-            name='rviz2',
-            output='log',
-            emulate_tty=True,
-            sigterm_timeout='5',
-            arguments=['-d', config['visualization']['rviz_config']]
-        ))
+# def build_viz_nodes(config):
+#     viz_nodes = []
+#     if config['visualization']['rviz']:
+#         viz_nodes.append(Node(
+#             package='rviz2',
+#             executable='rviz2',
+#             name='rviz2',
+#             output='log',
+#             emulate_tty=True,
+#             sigterm_timeout='5',
+#             arguments=['-d', config['visualization']['rviz_config']]
+#         ))
 
 
-    if config['visualization']['foxglove']:
-        print("=====Launching foxglove bridge=====")
-        viz_nodes.append(Node(
-            package='foxglove_bridge',
-            executable='foxglove_bridge',
-            name='foxglove_bridge',
-            output='log',
-        ))
+#     if config['visualization']['foxglove']:
+#         print("=====Launching foxglove bridge=====")
+#         viz_nodes.append(Node(
+#             package='foxglove_bridge',
+#             executable='foxglove_bridge',
+#             name='foxglove_bridge',
+#             output='log',
+#         ))
 
-    return viz_nodes
+#     return viz_nodes
 
 
 def launch_setup(context, *args, **kwargs):
@@ -162,23 +160,23 @@ def launch_setup(context, *args, **kwargs):
     config_file_name = LaunchConfiguration('config').perform(context)
     config = load_config(config_file_name, context)
 
-    use_sim_time = LaunchConfiguration('use_sim_time')
+    # use_sim_time = LaunchConfiguration('use_sim_time')
 
     # Build robot description
     robot_nodes = build_robot_nodes(config)
     controller_nodes = build_controller_nodes(config)
-    sim_nodes = build_sim_nodes(config)
-    viz_nodes = build_viz_nodes(config)
+    # sim_nodes = build_sim_nodes(config, context)
+    # viz_nodes = build_viz_nodes(config)
     
     timer_period = 0.0
-    timer_period_delay = 20.0
+    timer_period_delay = 0.0
 
     # Build launch actions list
     launch_actions = []
     launch_actions.extend(launch_nodes(robot_nodes, timer_period, timer_period_delay))
-    launch_actions.extend(launch_nodes(sim_nodes, timer_period, timer_period_delay))
-    launch_actions.extend(launch_nodes(viz_nodes, timer_period, timer_period_delay))
-    launch_actions.extend(launch_nodes(controller_nodes, timer_period, timer_period_delay))
+    # launch_actions.extend(launch_nodes(sim_nodes, timer_period, timer_period_delay))
+    # launch_actions.extend(launch_nodes(viz_nodes, timer_period, timer_period_delay))
+    launch_actions.extend(launch_nodes(controller_nodes, 1.0, timer_period_delay))
 
     return launch_actions
 
