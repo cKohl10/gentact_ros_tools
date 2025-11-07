@@ -25,6 +25,72 @@ def load_config(config_file_name, context):
     
     return config
 
+def build_controller_nodes(config):
+    controller_nodes = []
+    if config['controller']['active']:
+        avoidance_type = config['controller']['avoidance_type']
+        movement_type = config['controller']['movement_type']
+        controller_nodes.append(Node(
+            package='hiro_collision_avoidance_ros2',
+            executable='Main',
+            name='Main',
+            output='screen',
+            parameters=[{'avoidance_type': avoidance_type, 'movement_type': movement_type}],
+        ))
+    return controller_nodes
+
+def build_robot_description(config):
+    """Build URDF arguments based on active sensors in config"""
+    urdf_args = []
+    
+    # Loop through all sensors in the config
+    for sensor_key, sensor_config in config['sensors'].items():
+        if isinstance(sensor_config, dict) and sensor_config.get('xacro', '') != '':
+            xacro_path = sensor_config.get('xacro', '')
+            urdf_args.extend([f' {sensor_key}:=', xacro_path])
+
+    # Add end effector mesh if specified in config
+    if isinstance(config['robot']['end_effector'], dict) and config['robot']['end_effector'].get('active', False):
+        ee_xacro = config['robot']['end_effector'].get('xacro', '')
+        if ee_xacro:
+            urdf_args.extend([' ee_xacro_file:=', ee_xacro])
+    
+    urdf_file = PathJoinSubstitution([FindPackageShare('gentact_descriptions'), config['robot']['robot_xacro']])
+    xacro_command = ['xacro ', urdf_file] + urdf_args
+    robot_description = ParameterValue(
+        Command(xacro_command), 
+        value_type=str
+    )
+
+    return robot_description
+
+def build_robot(config, use_sim_time, robot_description):
+    robot_nodes = []
+
+    robot_nodes.append(Node(
+        package='robot_state_publisher',
+        executable='robot_state_publisher',
+        name=f'{config["robot"]["arm_id"]}_robot_state_publisher',
+        output='screen',
+        parameters=[{'use_sim_time': use_sim_time, 'robot_description': robot_description}],
+    ))
+    robot_nodes.append(Node(
+        package='tf2_ros',
+        executable='static_transform_publisher',
+        name='robot_static_transform_publisher',
+        output='screen',
+        arguments=['0', '0', '0', '0', '0', '0', 'map', 'base']
+    ))
+    if config['robot']['joint_publisher']:
+        robot_nodes.append(Node(
+            package='joint_state_publisher',
+            executable='joint_state_publisher',
+            name='robot_joint_states',
+            output='screen',
+            parameters=[{'use_sim_time': use_sim_time}]
+        ))
+    return robot_nodes
+
 def build_sensor_nodes(config, sensor_port_mapping):
     """Build sensor publisher nodes based on active sensors in config"""
     sensor_nodes = []
@@ -119,7 +185,6 @@ def build_prediction_nodes(config, sensor_key, sensor_config):
                 'skin_name': link_name,
                 'alpha': alpha,
                 'max_distance': max_distance,
-                'output_frame': 'fr3_link0',
             }
             
             # Only add multiplier parameter if it's actually defined in config
@@ -174,12 +239,108 @@ def build_tracker_nodes(config, sensor_key, sensor_config):
             tracker_nodes.append(tracker_node)
     return tracker_nodes
 
+def build_joint_relay_nodes(config):
+    joint_relay_nodes = []
+    if config['robot']['joint_relay']:
+        # joint_relay_nodes.append(Node( # Controls the franka to mimic /joint_states_{arm_id}
+        #     package='gentact_ros_tools',
+        #     executable='franky_relay',
+        #     name='franky_relay',
+        #     output='screen',
+        #     parameters=[{
+        #         'robot_ip': config['robot']['robot_ip'],
+        #         'arm_id': config['robot']['arm_id'],
+        #     }]
+        # ))
+
+        joint_relay_nodes.append(Node( # Relays /joint_states to the robot's namespace
+            package='gentact_ros_tools',
+            executable='panda2fr3',
+            name='panda2fr3',
+            output='screen',
+            parameters=[{
+                'arm_id': config['robot']['arm_id'],
+            }]
+        ))
+
+        if config['robot']['joint_publisher']:
+            joint_relay_nodes.append(Node( # Relays /joint_states to the robot's namespace
+                package='joint_state_publisher_gui',
+                executable='joint_state_publisher_gui',
+                name='joint_state_publisher_gui'
+            ))
+
+    return joint_relay_nodes
+
+def build_viz_nodes(config):
+    viz_nodes = []
+    if config['visualization']['rviz']:
+        viz_nodes.append(Node(
+            package='rviz2',
+            executable='rviz2',
+            name='rviz2',
+            output='log',
+            emulate_tty=True,
+            sigterm_timeout='5',
+            arguments=['-d', config['visualization']['rviz_config']]
+        ))
+
+
+    if config['visualization']['foxglove']:
+        print("=====Launching foxglove bridge=====")
+        viz_nodes.append(Node(
+            package='foxglove_bridge',
+            executable='foxglove_bridge',
+            name='foxglove_bridge',
+            output='log',
+        ))
+
+    return viz_nodes
+
+"""
+def build_tuner_nodes(config):
+    tuner_nodes = []
+    if config['avoidance']['active']:
+        tuner_nodes.append(Node(
+            package='gentact_ros_tools',
+            executable='tuner',
+            name='rviz2',
+            output='screen',
+            parameters=[{
+                'config': config['visualization']['rviz_config'],
+            }]
+        ))
+"""
+        
+def build_cameras_nodes(config):
+    cameras_nodes = []
+    if config['cameras']['active']:
+        cameras_launch_file = config['cameras']['launch_file']
+        cameras_launch = IncludeLaunchDescription(
+            PythonLaunchDescriptionSource([
+                PathJoinSubstitution([
+                    FindPackageShare('gentact_ros_tools'),
+                    'launch',
+                    cameras_launch_file
+                ])
+            ])
+        )
+        cameras_nodes.append(cameras_launch)
+    return cameras_nodes
+
 
 def launch_setup(context, *args, **kwargs):
     # Get the config file name from launch configuration
     config_file_name = LaunchConfiguration('config').perform(context)
     config = load_config(config_file_name, context)
 
+    use_sim_time = LaunchConfiguration('use_sim_time')
+
+    # Build robot description
+    robot_description = build_robot_description(config)
+    robot_nodes = build_robot(config, use_sim_time, robot_description)
+    controller_nodes = build_controller_nodes(config)
+    
     # Build sensor nodes dynamically from config
     # Get port mapping from serial number scanning
     sensor_port_mapping = map_serial_numbers_to_sensors(config)
@@ -203,26 +364,62 @@ def launch_setup(context, *args, **kwargs):
                 sensor_prediction_nodes = build_tracker_nodes(config, sensor_key, sensor_config)
                 tracker_nodes.extend(sensor_prediction_nodes)
     
+    viz_nodes = build_viz_nodes(config)
+    camera_nodes = build_cameras_nodes(config)
+    joint_relay_nodes = build_joint_relay_nodes(config)
     udp_listener_nodes = build_udp_listener_nodes(config)
     timer_period = 0.0
     timer_period_delay = 0.0
 
     # Build launch actions list
     launch_actions = []
-    launch_actions.extend(launch_nodes(sensor_nodes, timer_period, timer_period_delay))
-    launch_actions.extend(launch_nodes(prediction_nodes, timer_period, timer_period_delay))
-    launch_actions.extend(launch_nodes(tracker_nodes, timer_period, timer_period_delay))
-    launch_actions.extend(launch_nodes(udp_listener_nodes, timer_period+10.0, timer_period_delay))
-
-    return launch_actions
-
-def launch_nodes(nodes, timer_period, timer_period_delay):
-    launch_actions = []
-    if nodes is None:
-        return launch_actions
-    for node in nodes:
-        launch_actions.append(TimerAction(period=timer_period, actions=[node]))
+    for robot_node in robot_nodes:
+        launch_actions.append(TimerAction(period=timer_period, actions=[robot_node]))
         timer_period += timer_period_delay
+
+    # Add visualization nodes
+    for viz_node in viz_nodes:
+        launch_actions.append(TimerAction(period=timer_period, actions=[viz_node]))
+        timer_period += timer_period_delay
+
+    # Add camera nodes with delays
+    for camera_node in camera_nodes:
+        launch_actions.append(TimerAction(period=timer_period, actions=[camera_node]))
+        timer_period += timer_period_delay
+
+    # Add controller nodes with delays
+    for controller_node in controller_nodes:
+        launch_actions.append(TimerAction(period=timer_period, actions=[controller_node]))
+        timer_period += timer_period_delay
+
+    # Add sensor nodes with delays
+    for sensor_node in sensor_nodes:
+        launch_actions.append(TimerAction(period=timer_period, actions=[sensor_node]))
+        timer_period += timer_period_delay
+    
+    # Add prediction nodes with delays
+    for prediction_node in prediction_nodes:
+        launch_actions.append(TimerAction(period=timer_period, actions=[prediction_node]))
+        timer_period += timer_period_delay
+
+    # Add joint relay nodes with delays
+    for joint_relay_node in joint_relay_nodes:
+        launch_actions.append(TimerAction(period =timer_period, actions=[joint_relay_node]))
+        timer_period += timer_period_delay
+
+    # Add tracker nodes with delays
+    for tracker_node in tracker_nodes:
+        launch_actions.append(TimerAction(period=timer_period, actions=[tracker_node]))
+        timer_period += timer_period_delay
+
+    # Add udp listener nodes with delays
+    for udp_listener_node in udp_listener_nodes:
+        launch_actions.append(TimerAction(period=timer_period+20.0, actions=[udp_listener_node]))
+        timer_period += timer_period_delay
+
+    #print("Running ros1_ros2_bridge")
+    #ros1_ros2_bridge()
+
     return launch_actions
 
 def generate_launch_description():

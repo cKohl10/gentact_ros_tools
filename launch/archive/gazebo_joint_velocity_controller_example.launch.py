@@ -138,7 +138,7 @@ def generate_launch_description():
 
     joint_velocity_example_controller = ExecuteProcess(
         cmd=['ros2', 'control', 'load_controller', '--set-state', 'active',
-                'joint_position_example_controller'],
+                'joint_velocity_example_controller'],
         output='screen'
     )
 
@@ -163,13 +163,13 @@ def generate_launch_description():
                 on_exit=[joint_velocity_example_controller],
             )
         ),
-        Node(
-            package='joint_state_publisher',
-            executable='joint_state_publisher',
-            name='joint_state_publisher',
-            namespace=namespace,
-            parameters=[
-                {'source_list': ['joint_states'],
-                 'rate': 30}],
-        ),
+        # Node(
+        #     package='joint_state_publisher',
+        #     executable='joint_state_publisher',
+        #     name='joint_state_publisher',
+        #     namespace=namespace,
+        #     parameters=[
+        #         {'source_list': ['joint_states'],
+        #          'rate': 30}],
+        # ),
     ])

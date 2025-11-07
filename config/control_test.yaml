@@ -17,7 +17,7 @@ controller:
   use_sim: true
   name: "hiro_joint_velocity_example_controller"
   avoidance_type: "hiro"
-  movement_type: "static"
+  movement_type: "box"
 
 sensors:
   active: false
@@ -61,7 +61,7 @@ sensors:
     wireless: false
     port: ''
   link5_skin:
-    active: true
+    active: false
     type: "SPAD"
     SN: "S5" # Serial number of the sensor - will be auto-detected from ACM port
     num_sensors: 3
@@ -74,8 +74,8 @@ sensors:
     type: "SCPS"
     SN: "S6" # Serial number of the sensor - will be auto-detected from ACM port
     num_sensors: 6
-    # xacro: "../skin/link6_big.xacro" # Defined relative to the gentact_ros_tools package. Leave empty to not display. Defined from robot xacro file.
-    xacro: ""
+    xacro: "../skin/link6_big.xacro" # Defined relative to the gentact_ros_tools package. Leave empty to not display. Defined from robot xacro file.
+    # xacro: ""
     wireless: false
     port: ''
     multiplier: [1.0,1.0,1.0,1.0,100000.0,1.0]
@@ -96,7 +96,7 @@ prediction:
 visualization:
   rviz: false
   rviz_config: "/home/caleb/.rviz2/hybrid.rviz" # ignore if rviz is false
-  foxglove: false
+  foxglove: true
 
 tracker:
   active: true

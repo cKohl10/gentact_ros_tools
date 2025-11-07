@@ -146,8 +146,23 @@ def generate_robot_nodes(context):
         output='screen',
         parameters=[
             {'robot_description': robot_description_config},
+            {'use_sim_time': True},  # Important for Gazebo simulation
         ]
     )
+
+    # NOTE: ros2_control_node is NOT needed here!
+    # The gz_ros2_control Gazebo plugin (defined in the URDF <gazebo> tag)
+    # automatically creates its own controller_manager inside Gazebo.
+    # This is the modern approach for Gazebo Ignition/Fortress.
+    
+    # franka_robot_state_broadcaster = Node(
+    #     package='controller_manager',
+    #     executable='spawner',
+    #     namespace=LaunchConfiguration('namespace').perform(context),
+    #     arguments=['franka_robot_state_broadcaster'],
+    #     parameters=[{'arm_id': arm_id_str}],
+    #     output='screen',
+    # )
 
     return [robot_state_publisher]
 
@@ -171,6 +186,9 @@ def generate_launch_description():
         DeclareLaunchArgument('load_gripper',
                               default_value='true',
                               description='Use Franka Gripper as an end-effector'),
+        DeclareLaunchArgument('joint_state_rate',
+                              default_value='30',
+                              description='Rate for joint state publishing in Hz'),
         DeclareLaunchArgument('link1_skin',
                               default_value='',
                               description='Link 1 skin'),
@@ -234,12 +252,15 @@ def generate_launch_description():
         output='screen'
     )
 
-    joint_velocity_example_controller = ExecuteProcess(
+    hiro_joint_velocity_example_controller = ExecuteProcess(
         cmd=['ros2', 'control', 'load_controller', '--set-state', 'active',
-                'joint_velocity_example_controller'],
+                'hiro_joint_velocity_example_controller'],
         output='screen'
     )
 
+    joint_state_publisher_sources = ['franka/joint_states', 'franka_gripper/joint_states']
+    joint_state_rate = LaunchConfiguration('joint_state_rate')
+    
     return LaunchDescription(launch_args + [
         OpaqueFunction(function=generate_robot_nodes),
         gazebo_empty_world,
@@ -250,19 +271,22 @@ def generate_launch_description():
                 on_exit=[load_joint_state_broadcaster],
             )
         ),
-        # RegisterEventHandler(
-        #     event_handler=OnProcessExit(
-        #         target_action=load_joint_state_broadcaster,
-        #         on_exit=[joint_velocity_example_controller],
-        #     )
-        # ),
-        Node(
-            package='joint_state_publisher',
-            executable='joint_state_publisher',
-            name='joint_state_publisher',
-            namespace=namespace,
-            parameters=[
-                {'source_list': ['joint_states'],
-                 'rate': 30}],
+        RegisterEventHandler(
+            event_handler=OnProcessExit(
+                target_action=load_joint_state_broadcaster,
+                on_exit=[hiro_joint_velocity_example_controller],
+            )
         ),
+        # Node(
+        #     package='joint_state_publisher',
+        #     executable='joint_state_publisher',
+        #     name='joint_state_publisher',
+        #     namespace=namespace,
+        #     parameters=[{
+        #         'source_list': joint_state_publisher_sources,
+        #         'rate': joint_state_rate,
+        #         'use_robot_description': False,
+        #     }],
+        #     output='screen',
+        # ),
     ])

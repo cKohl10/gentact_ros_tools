@@ -97,34 +97,23 @@ def build_robot_nodes(config):
                 launch_arguments=launch_arguments.items(),
             ))
     
-    # Only spawn the controller if it's active
-    if config['controller']['active']:
-        controller_name = config['controller']['name']
-        
-        # Create controller-specific parameters with gazebo flag
-        controller_params = {
-            controller_name: {
-                'ros__parameters': {
-                    'gazebo': use_sim
-                }
-            }
-        }
-        
-        robot_nodes.append(
-            Node(
-                package='controller_manager',
-                executable='spawner',
-                namespace=namespace,
-                arguments=[controller_name, '--controller-manager-timeout', '30'],
-                parameters=[
-                    PathJoinSubstitution([
-                        FindPackageShare('franka_bringup'), 'config', "controllers.yaml",
-                    ]),
-                    controller_params  # Override gazebo parameter based on config
-                ],
-                output='screen',
+        # Only spawn the controller if it's active
+        if config['controller']['active']:
+            controller_name = config['controller']['name']
+            robot_nodes.append(
+                Node(
+                    package='controller_manager',
+                    executable='spawner',
+                    namespace=namespace,
+                    arguments=[controller_name, '--controller-manager-timeout', '30'],
+                    parameters=[
+                        PathJoinSubstitution([
+                            FindPackageShare('franka_bringup'), 'config', "controllers.yaml",
+                        ])
+                    ],
+                    output='screen',
+                )
             )
-        )
 
         
     return robot_nodes
@@ -176,7 +165,7 @@ def launch_setup(context, *args, **kwargs):
     launch_actions.extend(launch_nodes(robot_nodes, timer_period, timer_period_delay))
     # launch_actions.extend(launch_nodes(sim_nodes, timer_period, timer_period_delay))
     # launch_actions.extend(launch_nodes(viz_nodes, timer_period, timer_period_delay))
-    launch_actions.extend(launch_nodes(controller_nodes, 1.0, timer_period_delay))
+    launch_actions.extend(launch_nodes(controller_nodes, 4.0, timer_period_delay))
 
     return launch_actions
 

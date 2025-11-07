@@ -22,7 +22,7 @@ class CapacitivePCL(Node):
         self.declare_parameter('num_sensors', 6)
         self.declare_parameter('max_distance', 0.1)  # Maximum distance threshold in meters (10 cm)
         self.declare_parameter('frame_id', 'link5')
-        self.declare_parameter('output_frame', 'map')
+        self.declare_parameter('output_frame', 'fr3_link0')
         self.declare_parameter('time_offset_sec', 0.1)
         self.declare_parameter('skin_name', '')
         self.declare_parameter('multiplier', None)  # Multiplier for each sensor
@@ -417,7 +417,7 @@ class CapacitivePCL(Node):
                 else:
                     zero_pose = PoseStamped()
                     zero_pose.header.stamp = self.get_clock().now().to_msg()
-                    zero_pose.header.frame_id = 'map'
+                    zero_pose.header.frame_id = self.output_frame
                     zero_pose.pose.position.x = 100.0
                     zero_pose.pose.position.y = 0.0
                     zero_pose.pose.position.z = 0.0
@@ -426,7 +426,7 @@ class CapacitivePCL(Node):
                 # No sensor data processed, publish default "no obstacle" pose
                 zero_pose = PoseStamped()
                 zero_pose.header.stamp = self.get_clock().now().to_msg()
-                zero_pose.header.frame_id = 'map'
+                zero_pose.header.frame_id = self.output_frame
                 zero_pose.pose.position.x = 100.0
                 zero_pose.pose.position.y = 0.0
                 zero_pose.pose.position.z = 0.0
@@ -468,7 +468,7 @@ class CapacitivePCL(Node):
     def get_obstacle_pose(self, sensor_id, sensor_point):
         """Get the pose of the obstacle"""
         map_transform = self.tf_buffer.lookup_transform(
-            "map",
+            self.output_frame,
             f"{self.frame_id}_sensor_{sensor_id}",
             rclpy.time.Time()
         )
@@ -478,7 +478,7 @@ class CapacitivePCL(Node):
         """Create an obstacle message from a single 3D point."""
         msg = PoseStamped()
         msg.header.stamp = self.get_clock().now().to_msg()
-        msg.header.frame_id = 'map'  # Always publish in 'map' frame
+        msg.header.frame_id = self.output_frame  # Always publish in 'map' frame
 
         # Use the already transformed point
         msg.pose.position.x = float(transformed_point[0])
