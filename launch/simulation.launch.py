@@ -87,30 +87,6 @@ from launch_ros.substitutions import FindPackageShare
 
 
 def generate_robot_nodes(context):
-    # load_gripper_launch_configuration = LaunchConfiguration('load_gripper').perform(context)
-    # load_gripper = load_gripper_launch_configuration.lower() == 'true'
-    # urdf_path = PathJoinSubstitution([
-    #     FindPackageShare('gentact_descriptions'), 'robots',LaunchConfiguration('urdf_file')
-    # ]).perform(context)
-    # robot_description = xacro.process_file(
-    #     urdf_path,
-    #     mappings={
-    #         'ros2_control': 'true',
-    #         'arm_id': LaunchConfiguration('arm_id').perform(context),
-    #         'hand': load_gripper_launch_configuration,
-    #         'use_fake_hardware': LaunchConfiguration('use_fake_hardware').perform(context),
-    #         'fake_sensor_commands': LaunchConfiguration('fake_sensor_commands').perform(context),
-    #         'gazebo': 'true',
-    #         'gazebo_effort': 'true',
-    #         'link1_skin': LaunchConfiguration('link1_skin').perform(context),
-    #         'link2_skin': LaunchConfiguration('link2_skin').perform(context),
-    #         'link3_skin': LaunchConfiguration('link3_skin').perform(context),
-    #         'link4_skin': LaunchConfiguration('link4_skin').perform(context),
-    #         'link5_skin': LaunchConfiguration('link5_skin').perform(context),
-    #         'link6_skin': LaunchConfiguration('link6_skin').perform(context),
-    #     }
-    # ).toxml()
-
     arm_id_str = LaunchConfiguration('arm_id').perform(context)
     robot_urdf_file = LaunchConfiguration('urdf_file').perform(context)
     ee_id_str = LaunchConfiguration('ee_id').perform(context)
@@ -149,20 +125,6 @@ def generate_robot_nodes(context):
             {'use_sim_time': True},  # Important for Gazebo simulation
         ]
     )
-
-    # NOTE: ros2_control_node is NOT needed here!
-    # The gz_ros2_control Gazebo plugin (defined in the URDF <gazebo> tag)
-    # automatically creates its own controller_manager inside Gazebo.
-    # This is the modern approach for Gazebo Ignition/Fortress.
-    
-    # franka_robot_state_broadcaster = Node(
-    #     package='controller_manager',
-    #     executable='spawner',
-    #     namespace=LaunchConfiguration('namespace').perform(context),
-    #     arguments=['franka_robot_state_broadcaster'],
-    #     parameters=[{'arm_id': arm_id_str}],
-    #     output='screen',
-    # )
 
     return [robot_state_publisher]
 
@@ -228,23 +190,6 @@ def generate_launch_description():
         arguments=['-topic', '/robot_description'],
         output='screen',
     )
-
-    # Use controller_manager spawner to respect namespace
-    # load_joint_state_broadcaster = Node(
-    #     package='controller_manager',
-    #     executable='spawner',
-    #     namespace=namespace,
-    #     arguments=['joint_state_broadcaster', '--controller-manager-timeout', '30'],
-    #     output='screen',
-    # )
-
-    # joint_velocity_example_controller = Node(
-    #     package='controller_manager',
-    #     executable='spawner',
-    #     namespace=namespace,
-    #     arguments=['joint_velocity_example_controller', '--controller-manager-timeout', '30'],
-    #     output='screen',
-    # )
 
     load_joint_state_broadcaster = ExecuteProcess(
         cmd=['ros2', 'control', 'load_controller', '--set-state', 'active',

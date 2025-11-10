@@ -10,7 +10,7 @@ class SensorTrackingPublisher(Node):
         super().__init__("sensor_tracking_publisher")
 
         self.tracking_status = False
-        self.baseline_tracking_status = False
+        self.baseline_tracking_status = True
         
         # Declare parameters
         self.declare_parameter('num_sensors', 6)

@@ -99,19 +99,18 @@ def build_robot_nodes(config):
             ))
     
         # Only spawn the controller if it's active
-        if config['controller']['active']:
+        if config['controller']['relay_active']:
             controller_name = config['controller']['name']
+            controller_params_file = PathJoinSubstitution([
+                FindPackageShare('hiro_collision_avoidance_ros2'), 'config', "controllers.yaml",
+            ])
             robot_nodes.append(
                 Node(
                     package='controller_manager',
                     executable='spawner',
                     namespace=namespace,
-                    arguments=[controller_name, '--controller-manager-timeout', '30'],
-                    parameters=[
-                        PathJoinSubstitution([
-                            FindPackageShare('franka_bringup'), 'config', "controllers.yaml",
-                        ])
-                    ],
+                    arguments=[controller_name, '--controller-manager-timeout', '30',
+                               '--param-file', controller_params_file],
                     output='screen',
                 )
             )
@@ -170,25 +169,21 @@ def launch_setup(context, *args, **kwargs):
     sensor_nodes = build_sensor_nodes(config, config_file_name)
     viz_nodes = build_viz_nodes(config)
 
-    timer_period = 0.0
-    timer_period_delay = 0.0
-
     # Build launch actions list
     launch_actions = []
-    launch_actions.extend(launch_nodes(robot_nodes, timer_period, timer_period_delay))
-    launch_actions.extend(launch_nodes(sensor_nodes, timer_period, timer_period_delay))
-    launch_actions.extend(launch_nodes(viz_nodes, timer_period, timer_period_delay))
-    launch_actions.extend(launch_nodes(controller_nodes, 4.0, timer_period_delay))
+    launch_actions.extend(launch_nodes(viz_nodes, 0.0))
+    launch_actions.extend(launch_nodes(robot_nodes, 2.0))
+    launch_actions.extend(launch_nodes(sensor_nodes, 1.0))
+    launch_actions.extend(launch_nodes(controller_nodes, 5.0))
 
     return launch_actions
 
-def launch_nodes(nodes, timer_period, timer_period_delay):
+def launch_nodes(nodes, timer_period):
     launch_actions = []
     if nodes is None:
         return launch_actions
     for node in nodes:
         launch_actions.append(TimerAction(period=timer_period, actions=[node]))
-        timer_period += timer_period_delay
     return launch_actions
 
 def generate_launch_description():
