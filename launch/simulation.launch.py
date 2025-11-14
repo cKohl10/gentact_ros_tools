@@ -191,16 +191,32 @@ def generate_launch_description():
         output='screen',
     )
 
-    load_joint_state_broadcaster = ExecuteProcess(
-        cmd=['ros2', 'control', 'load_controller', '--set-state', 'active',
-                'joint_state_broadcaster'],
-        output='screen'
+    # Use spawner so we can pass a param file to the controller
+    controllers_yaml = PathJoinSubstitution([
+        FindPackageShare('hiro_collision_avoidance_ros2'),
+        'config',
+        'controllers.yaml',
+    ])
+
+    load_joint_state_broadcaster = Node(
+        package='controller_manager',
+        executable='spawner',
+        arguments=[
+            'joint_state_broadcaster',
+            '--controller-manager-timeout', '30',
+        ],
+        output='screen',
     )
 
-    hiro_joint_velocity_example_controller = ExecuteProcess(
-        cmd=['ros2', 'control', 'load_controller', '--set-state', 'active',
-                'hiro_joint_velocity_example_controller'],
-        output='screen'
+    hiro_joint_velocity_example_controller = Node(
+        package='controller_manager',
+        executable='spawner',
+        arguments=[
+            'hiro_joint_velocity_example_controller',
+            '--controller-manager-timeout', '30',
+            '--param-file', controllers_yaml,
+        ],
+        output='screen',
     )
 
     joint_state_publisher_sources = ['franka/joint_states', 'franka_gripper/joint_states']

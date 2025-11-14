@@ -101,16 +101,19 @@ def build_robot_nodes(config):
         # Only spawn the controller if it's active
         if config['controller']['relay_active']:
             controller_name = config['controller']['name']
-            controller_params_file = PathJoinSubstitution([
-                FindPackageShare('hiro_collision_avoidance_ros2'), 'config', "controllers.yaml",
-            ])
             robot_nodes.append(
                 Node(
                     package='controller_manager',
                     executable='spawner',
                     namespace=namespace,
-                    arguments=[controller_name, '--controller-manager-timeout', '30',
-                               '--param-file', controller_params_file],
+                    arguments=[
+                        controller_name,
+                        '--controller-manager-timeout', '30',
+                        '--param-file',
+                        PathJoinSubstitution([
+                            FindPackageShare('hiro_collision_avoidance_ros2'), 'config', "controllers.yaml",
+                        ])
+                    ],
                     output='screen',
                 )
             )

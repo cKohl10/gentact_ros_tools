@@ -41,6 +41,7 @@ set(PY_CONSOLE_ENTRIES
   franky_relay gentact_ros_tools.franky_relay:main
   franky_xbox gentact_ros_tools.franky_xbox:main
   closest_obstacle gentact_ros_tools.closest_obstacle:main
+  closest_obstacle_old_demo gentact_ros_tools.closest_obstacle_old_demo:main
   tof_pub_pc gentact_ros_tools.tof_pub_pc:main
   franka_ros2_controller gentact_ros_tools.franka_ros2_controller:main
   joint_states_monitor gentact_ros_tools.joint_states_monitor:main

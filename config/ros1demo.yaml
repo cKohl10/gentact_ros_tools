@@ -1,0 +1,88 @@
+robot:
+  arm_id: "fr3"
+  joint_relay: true
+  joint_publisher: false
+  robot_ip: "192.168.0.100" # Only used for joint relay. Ignore if joint relay is false.
+  robot_urdf: "urdf/compiled/fr3_full.urdf" # Relative path to URDF in franka_description/robots
+
+sensors:
+  active: true
+  publish_rate: 30.0 # Hz
+
+  # All links defined as in xacro: i.e. '${robot.arm_id}_${link_name}' -> 'fr3_link1'
+  # Launch will search for these links and activate if they are found in the xacro file.
+  link1_skin: # The name of the link needs to match the name of the link in the xacro file. ex: <link name="link1"/>
+    active: false
+    type: "SCPS"
+    SN: "S1" # Serial number of the sensor
+    num_sensors: 6
+    port: ''
+  link2_skin:
+    active: true
+    type: "SCPS"
+    SN: "S2" # Serial number of the sensor - will be auto-detected from ACM port
+    num_sensors: 6
+    port: ''
+  link3_skin:
+    active: true
+    type: "SCPS"
+    SN: "S3" # Serial number of the sensor - will be auto-detected from ACM port
+    num_sensors: 6
+    port: ''
+    multiplier: [1.0,10000000.0,1.0,1.0,1.0,1.0]
+
+  link4_skin:
+    active: true
+    type: "SCPS"
+    SN: "S4" # Serial number of the sensor - will be auto-detected from ACM port
+    num_sensors: 6
+    port: ''
+    multiplier: [1.0,1.0,1.0,1.0,100000.0,1.0]
+
+  link5_skin:
+    active: true
+    type: "SPAD"
+    SN: "S5" # Serial number of the sensor - will be auto-detected from ACM port
+    num_sensors: 3
+    port: "/dev/ttyACM2" # Fallback port for SPAD sensors if auto-detection fails
+  link6_skin:
+    active: true
+    type: "SCPS"
+    SN: "S6" # Serial number of the sensor - will be auto-detected from ACM port
+    num_sensors: 6
+    port: ''
+    multiplier: [1.0,1.0,1.0,1.0,100000.0,1.0]
+
+prediction:
+  active: true
+  pcl:
+    active: true
+    alpha: 0.003 # Sensitivity parameter.Higher -> More sensitive
+    min_dist: 0.05 # Minimum distance to consider for collision avoidance. (m)
+  mlp:
+    active: false
+    model_path: "~/self-cap-ml/saved_models/mlp_model.pth" # Absolute path to the model file. 
+  mamba:
+    active: false
+    model_path: "~/self-cap-ml/saved_models/mamba_all.pth" # Absolute path to the model file.
+
+visualization:
+  rviz: false
+  rviz_config: "/home/caleb/.rviz2/hybrid.rviz" # ignore if rviz is false
+  foxglove: true
+
+tracker:
+  active: true
+  baseline_timeout: 10.0 #s
+  baseline_duration: 3.0 # seconds
+  Kp: 0.15
+  Kd: 0.001
+  baseline_kp: 0.01
+  baseline_ki: 0.0000001
+  baseline_kd: 0.000001
+  masking_threshold: 100.0 # Threshold for masking baseline updates
+
+
+cameras: 
+  active: false
+  launch_file: "cameras.launch.py" # Launch file to launch the cameras.

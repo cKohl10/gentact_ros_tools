@@ -25,43 +25,15 @@ def load_config(config_file_name, context):
     
     return config
 
-def build_controller_nodes(config):
-    controller_nodes = []
-    if config['controller']['active']:
-        avoidance_type = config['controller']['avoidance_type']
-        movement_type = config['controller']['movement_type']
-        controller_nodes.append(Node(
-            package='hiro_collision_avoidance_ros2',
-            executable='Main',
-            name='Main',
-            output='screen',
-            parameters=[{'avoidance_type': avoidance_type, 'movement_type': movement_type}],
-        ))
-    return controller_nodes
-
-def build_robot_description(config):
+def build_robot_description(config, context):
     """Build URDF arguments based on active sensors in config"""
-    urdf_args = []
-    
-    # Loop through all sensors in the config
-    for sensor_key, sensor_config in config['sensors'].items():
-        if isinstance(sensor_config, dict) and sensor_config.get('xacro', '') != '':
-            xacro_path = sensor_config.get('xacro', '')
-            urdf_args.extend([f' {sensor_key}:=', xacro_path])
-
-    # Add end effector mesh if specified in config
-    if isinstance(config['robot']['end_effector'], dict) and config['robot']['end_effector'].get('active', False):
-        ee_xacro = config['robot']['end_effector'].get('xacro', '')
-        if ee_xacro:
-            urdf_args.extend([' ee_xacro_file:=', ee_xacro])
-    
-    urdf_file = PathJoinSubstitution([FindPackageShare('gentact_descriptions'), config['robot']['robot_xacro']])
-    xacro_command = ['xacro ', urdf_file] + urdf_args
-    robot_description = ParameterValue(
-        Command(xacro_command), 
-        value_type=str
-    )
-
+    # Resolve the URDF file path and load its contents as the robot_description
+    package_share = FindPackageShare('gentact_descriptions').perform(context)
+    urdf_rel_path = config['robot']['robot_urdf']
+    urdf_path = os.path.join(package_share, urdf_rel_path)
+    with open(urdf_path, 'r') as f:
+        urdf_xml = f.read()
+    robot_description = ParameterValue(urdf_xml, value_type=str)
     return robot_description
 
 def build_robot(config, use_sim_time, robot_description):
@@ -73,6 +45,8 @@ def build_robot(config, use_sim_time, robot_description):
         name=f'{config["robot"]["arm_id"]}_robot_state_publisher',
         output='screen',
         parameters=[{'use_sim_time': use_sim_time, 'robot_description': robot_description}],
+        remappings=[('/joint_states', '/joint_states_fr3'),
+                    ('/robot_description', '/robot_description_fr3')],
     ))
     robot_nodes.append(Node(
         package='tf2_ros',
@@ -146,10 +120,13 @@ def build_udp_listener_nodes(config):
     for sensor_key, sensor_config in config['sensors'].items():
         if isinstance(sensor_config, dict) and sensor_config.get('type', '') == "SPAD" and sensor_config.get('active', False):
             udp_listener_nodes.append(Node(
-                package='udp_tof_listener',
+                package='gentact_ros_tools',
                 executable='udp_grid_listener_array',
                 name='udp_listener',
-                output='screen'
+                output='screen',
+                parameters=[{
+                    'num_sensors': sensor_config.get('num_sensors', 0),
+                }]
             ))
     return udp_listener_nodes
 
@@ -199,12 +176,10 @@ def build_prediction_nodes(config, sensor_key, sensor_config):
                 output='screen'
             )
             prediction_nodes.append(pcl_node)
-        
-    
 
         aggregated_obstacles_node = Node(
             package='gentact_ros_tools',
-            executable='closest_obstacle',
+            executable='closest_obstacle_old_demo',
             name=f'closest_obstacle_pub',
             output='screen'
         )
@@ -337,9 +312,8 @@ def launch_setup(context, *args, **kwargs):
     use_sim_time = LaunchConfiguration('use_sim_time')
 
     # Build robot description
-    robot_description = build_robot_description(config)
+    robot_description = build_robot_description(config, context)
     robot_nodes = build_robot(config, use_sim_time, robot_description)
-    controller_nodes = build_controller_nodes(config)
     
     # Build sensor nodes dynamically from config
     # Get port mapping from serial number scanning
@@ -387,11 +361,6 @@ def launch_setup(context, *args, **kwargs):
         launch_actions.append(TimerAction(period=timer_period, actions=[camera_node]))
         timer_period += timer_period_delay
 
-    # Add controller nodes with delays
-    for controller_node in controller_nodes:
-        launch_actions.append(TimerAction(period=timer_period, actions=[controller_node]))
-        timer_period += timer_period_delay
-
     # Add sensor nodes with delays
     for sensor_node in sensor_nodes:
         launch_actions.append(TimerAction(period=timer_period, actions=[sensor_node]))
@@ -414,7 +383,7 @@ def launch_setup(context, *args, **kwargs):
 
     # Add udp listener nodes with delays
     for udp_listener_node in udp_listener_nodes:
-        launch_actions.append(TimerAction(period=timer_period+20.0, actions=[udp_listener_node]))
+        launch_actions.append(TimerAction(period=timer_period+5.0, actions=[udp_listener_node]))
         timer_period += timer_period_delay
 
     #print("Running ros1_ros2_bridge")
@@ -427,7 +396,7 @@ def generate_launch_description():
     # Declare launch argument for config file
     config_file_arg = DeclareLaunchArgument(
         'config',
-        default_value='full_body_avoidance.yaml',
+        default_value='ros1demo.yaml',
         description='Configuration file to load'
     )
     

@@ -63,6 +63,7 @@ class MinimalPublisher(Node):
         self.status_pub.publish(Bool(data=True))
         self.heartbeat_timer = self.create_timer(3.0, self.heartbeat_publisher)
         self.status = True
+        self.failed_attempts = 0
 
     def heartbeat_publisher(self):
         self.status_pub.publish(Bool(data=self.status))
@@ -73,9 +74,11 @@ class MinimalPublisher(Node):
         valid_points = [point for point in self.closest_points if point is not None]
         
         if not valid_points:
-            print("No valid points available yet")
-            # sleep(3)
-            return  # No valid points available yet
+            self.failed_attempts += 1
+            if self.failed_attempts % 100 == 0:
+                self.get_logger().info("No valid points available yet")
+            return
+        self.failed_attempts = 0
 
         # Convert to numpy array for easier processing
         points_array = np.array(valid_points)

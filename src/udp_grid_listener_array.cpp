@@ -44,9 +44,9 @@ public:
     RCLCPP_INFO(this->get_logger(), "Number of sensors: %d", num_sensors);
     log_connection_info();
     for (size_t i = 0; i < num_sensors; i ++) {
-      RCLCPP_INFO(this->get_logger(), "Initializing grid: ");
       pub_.push_back(this->create_publisher<std_msgs::msg::UInt16MultiArray>("tof_msg_" + std::to_string(i), 10));
     }
+    RCLCPP_INFO(this->get_logger(), "Initialized %d sensors", num_sensors);
     start_receive();
     spin_thread_ = std::thread([this]() { io_.run(); });
   }

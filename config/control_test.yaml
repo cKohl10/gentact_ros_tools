@@ -14,7 +14,7 @@ robot:
 
 controller:
   active: true
-  use_sim: false
+  use_sim: true
   relay_active: true
   name: "hiro_joint_velocity_example_controller"
   avoidance_type: "hiro"
@@ -98,7 +98,7 @@ prediction:
 visualization:
   rviz: false
   rviz_config: "/home/caleb/.rviz2/hybrid.rviz" # ignore if rviz is false
-  foxglove: false
+  foxglove: true
 
 tracker:
   active: true
