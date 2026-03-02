@@ -2,6 +2,15 @@
 
 Install this ros2 package to visualize GenTact sensors as URDFs
 
+NEW: 
+
+# Run hybrid skin (ToF only so far) -- launches foxglove as well 
+
+```bash 
+ros2 launch gentact_ros_tools sensors.launch.py config:=hybrid.yaml
+```
+
+
 # To run the spad skin + sensors:
 ```bash
 ros2 launch gentact_ros_tools spad2.launch.py config:=spad.yaml
