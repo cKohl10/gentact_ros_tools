@@ -10,6 +10,11 @@ NEW:
 ros2 launch gentact_ros_tools sensors.launch.py config:=hybrid.yaml
 ```
 
+### TODO:
+- Add functionality to tof_pub to accept multiple ports for one skin
+- Add pointcloud filtering
+
+
 
 # To run the spad skin + sensors:
 ```bash
