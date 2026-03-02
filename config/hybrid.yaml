@@ -22,7 +22,7 @@ sensors:
   # Launch will search for these links and activate if they are found in the xacro file.
   link1_skin: # The name of the link needs to match the name of the link in the xacro file. ex: <link name="link1"/>
     active: false
-    type: "SCPS"
+    type: "SPAD"
     SN: "S1" # Serial number of the sensor
     num_sensors: 6
     xacro: "" # Defined relative to the gentact_ros_tools package. Leave empty to not display.
@@ -30,48 +30,48 @@ sensors:
     port: ''
   link2_skin:
     active: true
-    type: "SCPS"
+    type: "SPAD"
     SN: "S2" # Serial number of the sensor - will be auto-detected from ACM port
-    num_sensors: 6
-    xacro: "../skin/link2_fancy.xacro" # Defined relative to the gentact_ros_tools package. Leave empty to not display.
+    num_sensors: 7
+    xacro: "../skin/hybrid/link2_hybrid.xacro" # Defined relative to the gentact_ros_tools package. Leave empty to not display.
     wireless: false
-    port: ''
+    port: 5006
   link3_skin:
     active: true
-    type: "SCPS"
+    type: "SPAD"
     SN: "S3" # Serial number of the sensor - will be auto-detected from ACM port
-    num_sensors: 6
-    xacro: "../skin/link3_fancy.xacro" # Defined relative to the gentact_ros_tools package. Leave empty to not display.
+    num_sensors: 5
+    xacro: "../skin/hybrid/link3_hybrid.xacro" # Defined relative to the gentact_ros_tools package. Leave empty to not display.
     wireless: false
-    port: ''
+    port: 5005
   link4_skin:
     active: true
-    type: "SCPS"
+    type: "SPAD"
     SN: "S4" # Serial number of the sensor - will be auto-detected from ACM port
-    num_sensors: 6
-    xacro: "../skin/link4_fancy.xacro" # Defined relative to the gentact_ros_tools package. Leave empty to not display.
+    num_sensors: 5
+    xacro: "../skin/hybrid/link4_hybrid.xacro" # Defined relative to the gentact_ros_tools package. Leave empty to not display.
     wireless: false
-    port: ''
+    port: 5010
   link5_skin:
     active: true
     type: "SPAD"
     SN: "S5" # Serial number of the sensor - will be auto-detected from ACM port
-    num_sensors: 3
-    xacro: "../skin/link5_spad.xacro" # Defined relative to the gentact_ros_tools package. Leave empty to not display. Defined from robot xacro file.
+    num_sensors: 10
+    xacro: "../skin/hybrid/link5_hybrid.xacro" # Defined relative to the gentact_ros_tools package. Leave empty to not display. Defined from robot xacro file.
     wireless: false
-    port: "/dev/ttyACM0" # Fallback port for SPAD sensors if auto-detection fails
+    port: [5007,5008] # testing if two ports on one skin is possible 
   link6_skin:
     active: true
-    type: "SCPS"
+    type: "SPAD"
     SN: "S6" # Serial number of the sensor - will be auto-detected from ACM port
     num_sensors: 6
-    xacro: "../skin/link6_big.xacro" # Defined relative to the gentact_ros_tools package. Leave empty to not display. Defined from robot xacro file.
+    xacro: "../skin/hybrid/link6_hybrid.xacro" # Defined relative to the gentact_ros_tools package. Leave empty to not display. Defined from robot xacro file.
     wireless: false
-    port: ''
+    port: 5009
     multiplier: [1.0,1.0,1.0,1.0,100000.0,1.0]
 
 prediction:
-  active: true
+  active: false
   pcl:
     active: true
     alpha: 0.003 # Sensitivity parameter.Higher -> More sensitive
@@ -89,7 +89,7 @@ visualization:
   foxglove: true
 
 tracker:
-  active: true
+  active: false
   baseline_timeout: 10.0 #s
   baseline_duration: 3.0 # seconds
   Kp: 0.15

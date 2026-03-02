@@ -42,7 +42,7 @@ def build_controller_nodes(config):
 def build_robot_description(config):
     """Build URDF arguments based on active sensors in config"""
     urdf_args = []
-    
+
     # Loop through all sensors in the config
     for sensor_key, sensor_config in config['sensors'].items():
         if isinstance(sensor_config, dict) and sensor_config.get('xacro', '') != '':
@@ -365,6 +365,7 @@ def launch_setup(context, *args, **kwargs):
                 tracker_nodes.extend(sensor_prediction_nodes)
     
     viz_nodes = build_viz_nodes(config)
+    
     camera_nodes = build_cameras_nodes(config)
     joint_relay_nodes = build_joint_relay_nodes(config)
     udp_listener_nodes = build_udp_listener_nodes(config)
@@ -383,24 +384,24 @@ def launch_setup(context, *args, **kwargs):
         timer_period += timer_period_delay
 
     # Add camera nodes with delays
-    for camera_node in camera_nodes:
-        launch_actions.append(TimerAction(period=timer_period, actions=[camera_node]))
-        timer_period += timer_period_delay
+    #for camera_node in camera_nodes:
+    #    launch_actions.append(TimerAction(period=timer_period, actions=[camera_node]))
+    #    timer_period += timer_period_delay
 
     # Add controller nodes with delays
-    for controller_node in controller_nodes:
-        launch_actions.append(TimerAction(period=timer_period, actions=[controller_node]))
-        timer_period += timer_period_delay
+    #for controller_node in controller_nodes:
+      #  launch_actions.append(TimerAction(period=timer_period, actions=[controller_node]))
+     #   timer_period += timer_period_delay
 
     # Add sensor nodes with delays
-    for sensor_node in sensor_nodes:
-        launch_actions.append(TimerAction(period=timer_period, actions=[sensor_node]))
-        timer_period += timer_period_delay
+    #for sensor_node in sensor_nodes:
+    #    launch_actions.append(TimerAction(period=timer_period, actions=[sensor_node]))
+    #    timer_period += timer_period_delay
     
     # Add prediction nodes with delays
-    for prediction_node in prediction_nodes:
-        launch_actions.append(TimerAction(period=timer_period, actions=[prediction_node]))
-        timer_period += timer_period_delay
+    #for prediction_node in prediction_nodes:
+    #    launch_actions.append(TimerAction(period=timer_period, actions=[prediction_node]))
+    #    timer_period += timer_period_delay
 
     # Add joint relay nodes with delays
     for joint_relay_node in joint_relay_nodes:
@@ -413,13 +414,13 @@ def launch_setup(context, *args, **kwargs):
         timer_period += timer_period_delay
 
     # Add udp listener nodes with delays
-    for udp_listener_node in udp_listener_nodes:
-        launch_actions.append(TimerAction(period=timer_period+20.0, actions=[udp_listener_node]))
-        timer_period += timer_period_delay
+    #for udp_listener_node in udp_listener_nodes:
+    #    launch_actions.append(TimerAction(period=timer_period+20.0, actions=[udp_listener_node]))
+    #   timer_period += timer_period_delay
 
     #print("Running ros1_ros2_bridge")
     #ros1_ros2_bridge()
-
+    
     return launch_actions
 
 def generate_launch_description():
