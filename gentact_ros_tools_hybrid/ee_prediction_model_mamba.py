@@ -93,7 +93,7 @@ class EEPredictionModelNode(Node):
         
         # Load model from the trained .pth file
         # Use ROS2 parameter system with proper package path
-        default_model_path = os.path.join(get_package_share_directory('gentact_ros_tools'), 'config', 'mlp_model.pth')
+        default_model_path = os.path.join(get_package_share_directory('gentact_ros_tools_hybrid'), 'config', 'mlp_model.pth')
         self.declare_parameter('model_path', default_model_path)
         self.declare_parameter('sensor_frame_id', 'calibration_skin')
         model_path = self.get_parameter('model_path').get_parameter_value().string_value

@@ -26,7 +26,7 @@ bash
 cd ros2_ws
 foxy
 local_ws
-ros2 run gentact_ros_tools tuner 0.003
+ros2 run gentact_ros_tools_hybrid tuner 0.003
 
 bash
 noetic
@@ -37,14 +37,14 @@ bash
 cd ros2_ws
 foxy
 local_ws
-ros2 run gentact_ros_tools franky_relay 
+ros2 run gentact_ros_tools_hybrid franky_relay 
 
 
 bash 
 cd ros2_ws
 foxy
 local_ws
-ros2 launch gentact_ros_tools self-cap_avoidance.launch.py 
+ros2 launch gentact_ros_tools_hybrid self-cap_avoidance.launch.py 
 
 ## record
 ros2 bag record -s mcap --all

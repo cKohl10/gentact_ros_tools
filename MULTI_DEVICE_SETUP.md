@@ -48,7 +48,7 @@ For each ESP32 device, you need to:
 
 Launch the UDP sensor publisher:
 ```bash
-ros2 launch gentact_ros_tools udp_sensor_publisher.launch.py
+ros2 launch gentact_ros_tools_hybrid udp_sensor_publisher.launch.py
 ```
 
 ## ROS Topics

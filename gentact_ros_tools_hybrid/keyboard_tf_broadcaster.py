@@ -48,7 +48,7 @@ class KeyboardTfBroadcaster(Node):
         print(f"Config parameter length: {len(self.config)}")
         print(f"Config parameter repr: {repr(self.config)}")
         
-        package_share_directory = get_package_share_directory('gentact_ros_tools')
+        package_share_directory = get_package_share_directory('gentact_ros_tools_hybrid')
         config_path = os.path.join(package_share_directory, 'config', self.config)
         print(f"Loading config from {config_path}")
 

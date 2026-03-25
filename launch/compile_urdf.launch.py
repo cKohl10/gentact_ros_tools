@@ -10,7 +10,7 @@ import os
 import yaml
 
 def load_config(config_file_name, context):
-    package_share = FindPackageShare('gentact_ros_tools').perform(context)
+    package_share = FindPackageShare('gentact_ros_tools_hybrid').perform(context)
     config_file = os.path.join(package_share, 'config', config_file_name)
     
     with open(config_file, 'r') as file:
@@ -35,7 +35,7 @@ def build_robot_description(config):
         if ee_xacro:
             urdf_args.append(f'ee_xacro_file:={ee_xacro}')
     
-    urdf_file = PathJoinSubstitution([FindPackageShare('gentact_ros_tools'), config['robot']['robot_xacro']])
+    urdf_file = PathJoinSubstitution([FindPackageShare('gentact_ros_tools_hybrid'), config['robot']['robot_xacro']])
     xacro_command = ['xacro ', urdf_file] + urdf_args
     robot_description = ParameterValue(
         Command(xacro_command), 
@@ -62,15 +62,15 @@ def launch_setup(context, *args, **kwargs):
     )
     
     # Resolve paths in context
-    package_share = FindPackageShare('gentact_ros_tools').perform(context)
+    package_share = FindPackageShare('gentact_ros_tools_hybrid').perform(context)
     urdf_file_resolved = urdf_file.perform(context)
     
     # Use source directory instead of install directory
-    # Get the source directory by going up from package_share: install/gentact_ros_tools/share/gentact_ros_tools -> src/gentact_ros_tools
-    install_dir = os.path.dirname(os.path.dirname(os.path.dirname(package_share)))  # Remove share/gentact_ros_tools
+    # Get the source directory by going up from package_share: install/gentact_ros_tools_hybrid/share/gentact_ros_tools_hybrid -> src/gentact_ros_tools_hybrid
+    install_dir = os.path.dirname(os.path.dirname(os.path.dirname(package_share)))  # Remove share/gentact_ros_tools_hybrid
     workspace_root = os.path.dirname(install_dir)  # Go up one more level to get workspace root
     src_dir = os.path.join(workspace_root, 'src')
-    source_package_dir = os.path.join(src_dir, 'gentact_ros_tools')
+    source_package_dir = os.path.join(src_dir, 'gentact_ros_tools_hybrid')
     
     output_file_resolved = os.path.join(source_package_dir, 'urdf', 'compiled', 'robot.urdf')
     output_dir_resolved = os.path.join(source_package_dir, 'urdf', 'compiled')

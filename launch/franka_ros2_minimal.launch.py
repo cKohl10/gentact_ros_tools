@@ -89,7 +89,7 @@ def generate_launch_description():
     
     # Custom controller node (your franka_ros2_controller.py)
     custom_controller_node = Node(
-        package='gentact_ros_tools',
+        package='gentact_ros_tools_hybrid',
         executable='franka_ros2_controller',
         name='franka_ros2_controller',
         output='screen',

@@ -3,7 +3,7 @@
 <robot name="calibration_skin" xmlns:xacro="http://ros.org/wiki/xacro">
   
   <!-- Include the link5 skin macro -->
-  <xacro:include filename="$(find gentact_ros_tools)/urdf/skin/link2_fancy.xacro" />
+  <xacro:include filename="$(find gentact_ros_tools_hybrid)/urdf/skin/link2_fancy.xacro" />
 
   <!-- Create a base link for the calibration skin -->
   <link name="calibration_base" />

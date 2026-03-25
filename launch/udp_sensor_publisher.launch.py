@@ -5,7 +5,7 @@ from launch_ros.actions import Node
 def generate_launch_description():
     return LaunchDescription([
         Node(
-            package='gentact_ros_tools',
+            package='gentact_ros_tools_hybrid',
             executable='udp_sensor_publisher',
             name='udp_sensor_publisher',
             output='screen',

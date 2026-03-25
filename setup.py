@@ -2,7 +2,7 @@ import os
 from glob import glob
 from setuptools import find_packages, setup
 
-package_name = 'gentact_ros_tools'
+package_name = 'gentact_ros_tools_hybrid'
 
 # Function to recursively get all files in a directory
 def get_data_files_recursive(base_dir, target_dir):
@@ -27,7 +27,7 @@ setup(
         ('share/' + package_name, ['package.xml']),
         (os.path.join('share', package_name, 'launch'), glob('launch/*')),
         (os.path.join('share', package_name, 'config'), glob('config/*')),
-        (os.path.join('share', package_name, 'msg'), glob('gentact_ros_tools/msg/*.msg')),
+        (os.path.join('share', package_name, 'msg'), glob('gentact_ros_tools_hybrid/msg/*.msg')),
     ] + get_data_files_recursive('meshes', os.path.join('share', package_name, 'meshes')) + get_data_files_recursive('urdf', os.path.join('share', package_name, 'urdf')),
     install_requires=['setuptools', 'rclpy', 'std_msgs', 'sensor_msgs', 'tf2_ros', 'geometry_msgs', 'tracikpy'],
     zip_safe=True,
@@ -37,29 +37,30 @@ setup(
     license='TODO: License declaration',
     entry_points={
         'console_scripts': [
-            'calibration_direct_pub = gentact_ros_tools.calibration_direct_pub:main',
-            'sensor_publisher = gentact_ros_tools.sensor_publisher:main',
-            'sensor_subscriber = gentact_ros_tools.sensor_subscriber:main',
-            'capacitive_pcl = gentact_ros_tools.capacitive_pcl:main',
-            'tuner = gentact_ros_tools.tuner:main',
-            'sensor_tracking_pub = gentact_ros_tools.sensor_tracking_pub:main',
-            'udp_sensor_publisher = gentact_ros_tools.udp_sensor_publisher:main',
-            'processor = gentact_ros_tools.processor:main',
-            'ik_solver = gentact_ros_tools.ik_solver:main',
-            'training_data_processor = gentact_ros_tools.training_data_processor:main',
-            'ee_prediction_model_mlp = gentact_ros_tools.ee_prediction_model_mlp:main',
-            'ee_prediction_model_mamba = gentact_ros_tools.ee_prediction_model_mamba:main',
-            'ee_prediction_verifier = gentact_ros_tools.ee_prediction_verifier:main',
-            'panda2fr3 = gentact_ros_tools.panda2fr3:main',
-            'fake_obj_pub = gentact_ros_tools.fake_obj_pub:main',
-            'joint_state_test_pub = gentact_ros_tools.joint_state_test_pub:main',
-            'franky_relay = gentact_ros_tools.franky_relay:main',
-            'franky_xbox = gentact_ros_tools.franky_xbox:main',
-            'closest_obstacle = gentact_ros_tools.closest_obstacle:main',
-            'tof_pub_pc = gentact_ros_tools.tof_pub_pc:main',
-            'franka_ros2_controller = gentact_ros_tools.franka_ros2_controller:main',
-            'joint_states_monitor = gentact_ros_tools.joint_states_monitor:main',
-            'test_talker = gentact_ros_tools.test_talker:main',
+            'calibration_direct_pub = gentact_ros_tools_hybrid.calibration_direct_pub:main',
+            'sensor_publisher = gentact_ros_tools_hybrid.sensor_publisher:main',
+            'sensor_subscriber = gentact_ros_tools_hybrid.sensor_subscriber:main',
+            'pc_publisher = gentact_ros_tools_hybrid.udp_tof_pc:main',
+            'capacitive_pcl = gentact_ros_tools_hybrid.capacitive_pcl:main',
+            'tuner = gentact_ros_tools_hybrid.tuner:main',
+            'sensor_tracking_pub = gentact_ros_tools_hybrid.sensor_tracking_pub:main',
+            'udp_sensor_publisher = gentact_ros_tools_hybrid.udp_sensor_publisher:main',
+            'processor = gentact_ros_tools_hybrid.processor:main',
+            'ik_solver = gentact_ros_tools_hybrid.ik_solver:main',
+            'training_data_processor = gentact_ros_tools_hybrid.training_data_processor:main',
+            'ee_prediction_model_mlp = gentact_ros_tools_hybrid.ee_prediction_model_mlp:main',
+            'ee_prediction_model_mamba = gentact_ros_tools_hybrid.ee_prediction_model_mamba:main',
+            'ee_prediction_verifier = gentact_ros_tools_hybrid.ee_prediction_verifier:main',
+            'panda2fr3 = gentact_ros_tools_hybrid.panda2fr3:main',
+            'fake_obj_pub = gentact_ros_tools_hybrid.fake_obj_pub:main',
+            'joint_state_test_pub = gentact_ros_tools_hybrid.joint_state_test_pub:main',
+            'franky_relay = gentact_ros_tools_hybrid.franky_relay:main',
+            'franky_xbox = gentact_ros_tools_hybrid.franky_xbox:main',
+            'closest_obstacle = gentact_ros_tools_hybrid.closest_obstacle:main',
+            'tof_pub_pc = gentact_ros_tools_hybrid.tof_pub_pc:main',
+            'franka_ros2_controller = gentact_ros_tools_hybrid.franka_ros2_controller:main',
+            'joint_states_monitor = gentact_ros_tools_hybrid.joint_states_monitor:main',
+            'test_talker = gentact_ros_tools_hybrid.test_talker:main',
         ],
     },
 )

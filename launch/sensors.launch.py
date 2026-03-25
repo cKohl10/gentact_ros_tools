@@ -17,7 +17,7 @@ import glob
 import time
 
 def load_config(config_file_name, context):
-    package_share = FindPackageShare('gentact_ros_tools').perform(context)
+    package_share = FindPackageShare('gentact_ros_tools_hybrid').perform(context)
     config_file = os.path.join(package_share, 'config', config_file_name)
     
     with open(config_file, 'r') as file:
@@ -42,7 +42,7 @@ def build_controller_nodes(config):
 def build_robot_description(config):
     """Build URDF arguments based on active sensors in config"""
     urdf_args = []
-    
+
     # Loop through all sensors in the config
     for sensor_key, sensor_config in config['sensors'].items():
         if isinstance(sensor_config, dict) and sensor_config.get('xacro', '') != '':
@@ -55,7 +55,7 @@ def build_robot_description(config):
         if ee_xacro:
             urdf_args.extend([' ee_xacro_file:=', ee_xacro])
     
-    urdf_file = PathJoinSubstitution([FindPackageShare('gentact_ros_tools'), config['robot']['robot_xacro']])
+    urdf_file = PathJoinSubstitution([FindPackageShare('gentact_ros_tools_hybrid'), config['robot']['robot_xacro']])
     xacro_command = ['xacro ', urdf_file] + urdf_args
     robot_description = ParameterValue(
         Command(xacro_command), 
@@ -101,14 +101,21 @@ def build_sensor_nodes(config, sensor_port_mapping):
 
             if sensor_config.get('type', '') == "SPAD":
                 # Create a sensor publisher node for each active sensor
+                link_len = len("link")
+                skin_str = sensor_key.find("_skin")
+                link_id = sensor_key[link_len:skin_str]
                 sensor_node = Node(
-                    package='gentact_ros_tools',
-                    executable='tof_pub_pc',
+                    package='gentact_ros_tools_hybrid',
+                    executable='pc_publisher',
                     name=f'{sensor_key}_publisher',
                     output='screen',
                     parameters=[{
+                        'udp_port' : sensor_config.get('port'),
+                        'link' : link_id,
+                        'multicast' : True,
+                        'multicast_group': config['sensors'].get('multicast_group', '239.0.0.1'),
                         'num_sensors': sensor_config.get('num_sensors', 8),
-                        'publish_rate': config['sensors'].get('publish_rate', 30.0),
+                        #'publish_rate': config['sensors'].get('publish_rate', 30.0),
                     }]
                 )
                 print(f"SPAD Sensor publisher for {sensor_key} built")
@@ -123,7 +130,7 @@ def build_sensor_nodes(config, sensor_port_mapping):
                     continue
                 
                 sensor_node = Node(
-                    package='gentact_ros_tools',
+                    package='gentact_ros_tools_hybrid',
                     executable='sensor_publisher',
                     name=f'{sensor_key}_publisher',
                     parameters=[{
@@ -140,18 +147,6 @@ def build_sensor_nodes(config, sensor_port_mapping):
                 print(f"SCPS Sensor publisher for {sensor_key} built")
             sensor_nodes.append(sensor_node)
     return sensor_nodes
-
-def build_udp_listener_nodes(config):
-    udp_listener_nodes = []
-    for sensor_key, sensor_config in config['sensors'].items():
-        if isinstance(sensor_config, dict) and sensor_config.get('type', '') == "SPAD" and sensor_config.get('active', False):
-            udp_listener_nodes.append(Node(
-                package='udp_tof_listener',
-                executable='udp_grid_listener_array',
-                name='udp_listener',
-                output='screen'
-            ))
-    return udp_listener_nodes
 
 
 def build_prediction_nodes(config, sensor_key, sensor_config):
@@ -192,7 +187,7 @@ def build_prediction_nodes(config, sensor_key, sensor_config):
                 params['multiplier'] = sensor_config['multiplier']
             
             pcl_node = Node(
-                package='gentact_ros_tools',
+                package='gentact_ros_tools_hybrid',
                 executable='capacitive_pcl',
                 name=f'pcl_prediction_{link_name}',
                 parameters=[params],
@@ -203,7 +198,7 @@ def build_prediction_nodes(config, sensor_key, sensor_config):
     
 
         aggregated_obstacles_node = Node(
-            package='gentact_ros_tools',
+            package='gentact_ros_tools_hybrid',
             executable='closest_obstacle',
             name=f'closest_obstacle_pub',
             output='screen'
@@ -230,7 +225,7 @@ def build_tracker_nodes(config, sensor_key, sensor_config):
                 'masking_threshold': config['tracker'].get('masking_threshold', 200.0),
             }
             tracker_node = Node(
-                package='gentact_ros_tools',
+                package='gentact_ros_tools_hybrid',
                 executable='sensor_tracking_pub',
                 name=f'sensor_tracking_pub_{sensor_key}',
                 output='screen',
@@ -243,7 +238,7 @@ def build_joint_relay_nodes(config):
     joint_relay_nodes = []
     if config['robot']['joint_relay']:
         # joint_relay_nodes.append(Node( # Controls the franka to mimic /joint_states_{arm_id}
-        #     package='gentact_ros_tools',
+        #     package='gentact_ros_tools_hybrid',
         #     executable='franky_relay',
         #     name='franky_relay',
         #     output='screen',
@@ -254,7 +249,7 @@ def build_joint_relay_nodes(config):
         # ))
 
         joint_relay_nodes.append(Node( # Relays /joint_states to the robot's namespace
-            package='gentact_ros_tools',
+            package='gentact_ros_tools_hybrid',
             executable='panda2fr3',
             name='panda2fr3',
             output='screen',
@@ -302,7 +297,7 @@ def build_tuner_nodes(config):
     tuner_nodes = []
     if config['avoidance']['active']:
         tuner_nodes.append(Node(
-            package='gentact_ros_tools',
+            package='gentact_ros_tools_hybrid',
             executable='tuner',
             name='rviz2',
             output='screen',
@@ -319,7 +314,7 @@ def build_cameras_nodes(config):
         cameras_launch = IncludeLaunchDescription(
             PythonLaunchDescriptionSource([
                 PathJoinSubstitution([
-                    FindPackageShare('gentact_ros_tools'),
+                    FindPackageShare('gentact_ros_tools_hybrid'),
                     'launch',
                     cameras_launch_file
                 ])
@@ -365,9 +360,10 @@ def launch_setup(context, *args, **kwargs):
                 tracker_nodes.extend(sensor_prediction_nodes)
     
     viz_nodes = build_viz_nodes(config)
+    
     camera_nodes = build_cameras_nodes(config)
     joint_relay_nodes = build_joint_relay_nodes(config)
-    udp_listener_nodes = build_udp_listener_nodes(config)
+    #udp_listener_nodes = build_udp_listener_nodes(config)
     timer_period = 0.0
     timer_period_delay = 0.0
 
@@ -383,14 +379,14 @@ def launch_setup(context, *args, **kwargs):
         timer_period += timer_period_delay
 
     # Add camera nodes with delays
-    for camera_node in camera_nodes:
-        launch_actions.append(TimerAction(period=timer_period, actions=[camera_node]))
-        timer_period += timer_period_delay
+    #for camera_node in camera_nodes:
+    #    launch_actions.append(TimerAction(period=timer_period, actions=[camera_node]))
+    #    timer_period += timer_period_delay
 
     # Add controller nodes with delays
-    for controller_node in controller_nodes:
-        launch_actions.append(TimerAction(period=timer_period, actions=[controller_node]))
-        timer_period += timer_period_delay
+    #for controller_node in controller_nodes:
+      #  launch_actions.append(TimerAction(period=timer_period, actions=[controller_node]))
+     #   timer_period += timer_period_delay
 
     # Add sensor nodes with delays
     for sensor_node in sensor_nodes:
@@ -398,9 +394,9 @@ def launch_setup(context, *args, **kwargs):
         timer_period += timer_period_delay
     
     # Add prediction nodes with delays
-    for prediction_node in prediction_nodes:
-        launch_actions.append(TimerAction(period=timer_period, actions=[prediction_node]))
-        timer_period += timer_period_delay
+    #for prediction_node in prediction_nodes:
+    #    launch_actions.append(TimerAction(period=timer_period, actions=[prediction_node]))
+    #    timer_period += timer_period_delay
 
     # Add joint relay nodes with delays
     for joint_relay_node in joint_relay_nodes:
@@ -413,13 +409,13 @@ def launch_setup(context, *args, **kwargs):
         timer_period += timer_period_delay
 
     # Add udp listener nodes with delays
-    for udp_listener_node in udp_listener_nodes:
-        launch_actions.append(TimerAction(period=timer_period+20.0, actions=[udp_listener_node]))
-        timer_period += timer_period_delay
+    #for udp_listener_node in udp_listener_nodes:
+    #    launch_actions.append(TimerAction(period=timer_period+20.0, actions=[udp_listener_node]))
+    #   timer_period += timer_period_delay
 
     #print("Running ros1_ros2_bridge")
     #ros1_ros2_bridge()
-
+    
     return launch_actions
 
 def generate_launch_description():

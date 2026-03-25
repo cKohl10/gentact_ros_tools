@@ -29,8 +29,8 @@ class TunerPublisher(Node):
 def main(args=None):
     # Check command line arguments
     if len(sys.argv) != 2:
-        print("Usage: ros2 run gentact_ros_tools tuner <number>")
-        print("Example: ros2 run gentact_ros_tools tuner 0.001")
+        print("Usage: ros2 run gentact_ros_tools_hybrid tuner <number>")
+        print("Example: ros2 run gentact_ros_tools_hybrid tuner 0.001")
         sys.exit(1)
     
     try:

@@ -40,17 +40,17 @@ This implementation provides wireless sensor data transmission from ESP32 device
 ### Build and Install
 ```bash
 # In your ROS2 workspace
-colcon build --packages-select gentact_ros_tools
+colcon build --packages-select gentact_ros_tools_hybrid
 source install/setup.bash
 ```
 
 ### Run UDP Publisher
 ```bash
 # Option 1: Direct execution
-ros2 run gentact_ros_tools udp_sensor_publisher
+ros2 run gentact_ros_tools_hybrid udp_sensor_publisher
 
 # Option 2: Using launch file
-ros2 launch gentact_ros_tools udp_sensor_publisher.launch.py
+ros2 launch gentact_ros_tools_hybrid udp_sensor_publisher.launch.py
 ```
 
 ### Parameters
@@ -63,7 +63,7 @@ ros2 launch gentact_ros_tools udp_sensor_publisher.launch.py
 ### Local Testing (without ESP32)
 1. Start the UDP publisher:
    ```bash
-   ros2 run gentact_ros_tools udp_sensor_publisher
+   ros2 run gentact_ros_tools_hybrid udp_sensor_publisher
    ```
 
 2. In another terminal, run the test sender:
@@ -131,6 +131,6 @@ ros2 topic info /sensor_raw
 
 ## Files Created
 - `esp32_sensor_sender.ino`: ESP32 firmware
-- `gentact_ros_tools/udp_sensor_publisher.py`: ROS2 publisher node
+- `gentact_ros_tools_hybrid/udp_sensor_publisher.py`: ROS2 publisher node
 - `launch/udp_sensor_publisher.launch.py`: Launch file
 - `UDP_SENSOR_SETUP.md`: This setup guide 

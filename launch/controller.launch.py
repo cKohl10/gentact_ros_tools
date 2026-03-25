@@ -17,7 +17,7 @@ import glob
 import time
 
 def load_config(config_file_name, context):
-    package_share = FindPackageShare('gentact_ros_tools').perform(context)
+    package_share = FindPackageShare('gentact_ros_tools_hybrid').perform(context)
     config_file = os.path.join(package_share, 'config', config_file_name)
     
     with open(config_file, 'r') as file:
@@ -41,7 +41,7 @@ def build_robot_description(config):
         if ee_xacro:
             urdf_args.extend([' ee_xacro_file:=', ee_xacro])
     
-    urdf_file = PathJoinSubstitution([FindPackageShare('gentact_ros_tools'), config['robot']['robot_xacro']])
+    urdf_file = PathJoinSubstitution([FindPackageShare('gentact_ros_tools_hybrid'), config['robot']['robot_xacro']])
     xacro_command = ['xacro ', urdf_file] + urdf_args
     robot_description = ParameterValue(
         Command(xacro_command), 
@@ -80,7 +80,7 @@ def build_robot(config, use_sim_time, robot_description):
 def build_controller_nodes(config, robot_description):
     controller_nodes = []
     param_file = PathJoinSubstitution([
-        FindPackageShare('gentact_ros_tools'),
+        FindPackageShare('gentact_ros_tools_hybrid'),
         'config',
         'fr3.yaml',
     ])
