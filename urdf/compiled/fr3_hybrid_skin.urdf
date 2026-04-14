@@ -176,61 +176,61 @@
     <parent link="fr3_link2"/>
     <child link="link2_skin"/>
   </joint>
-  <joint name="link2_sensor_0_joint" type="fixed">
+  <joint name="link2_sensor_3_joint" type="fixed">
     <origin rpy="1.627 -0.000 2.332" xyz="0.052 0.111 -0.004"/>
     <axis xyz="0.723 0.688 -0.056"/>
-    <parent link="link2_skin"/>
-    <child link="link2_sensor_0"/>
-  </joint>
-  <link name="link2_sensor_0">
-  </link>
-  <joint name="link2_sensor_1_joint" type="fixed">
-    <origin rpy="0.893 0.000 2.514" xyz="0.029 0.112 0.042"/>
-    <axis xyz="0.458 0.631 0.627"/>
-    <parent link="link2_skin"/>
-    <child link="link2_sensor_1"/>
-  </joint>
-  <link name="link2_sensor_1">
-  </link>
-  <joint name="link2_sensor_2_joint" type="fixed">
-    <origin rpy="-1.463 -3.142 -0.106" xyz="0.007 0.136 -0.007"/>
-    <axis xyz="0.106 0.989 -0.108"/>
-    <parent link="link2_skin"/>
-    <child link="link2_sensor_2"/>
-  </joint>
-  <link name="link2_sensor_2">
-  </link>
-  <joint name="link2_sensor_3_joint" type="fixed">
-    <origin rpy="1.466 0.000 2.917" xyz="0.009 0.064 0.131"/>
-    <axis xyz="0.222 0.969 0.105"/>
     <parent link="link2_skin"/>
     <child link="link2_sensor_3"/>
   </joint>
   <link name="link2_sensor_3">
   </link>
   <joint name="link2_sensor_4_joint" type="fixed">
-    <origin rpy="-0.668 -3.142 0.217" xyz="-0.009 0.112 -0.051"/>
-    <axis xyz="-0.133 0.605 -0.785"/>
+    <origin rpy="0.893 0.000 2.514" xyz="0.029 0.112 0.042"/>
+    <axis xyz="0.458 0.631 0.627"/>
     <parent link="link2_skin"/>
     <child link="link2_sensor_4"/>
   </joint>
   <link name="link2_sensor_4">
   </link>
+  <joint name="link2_sensor_0_joint" type="fixed">
+    <origin rpy="-1.463 -3.142 -0.106" xyz="0.007 0.136 -0.007"/>
+    <axis xyz="0.106 0.989 -0.108"/>
+    <parent link="link2_skin"/>
+    <child link="link2_sensor_0"/>
+  </joint>
+  <link name="link2_sensor_0">
+  </link>
   <joint name="link2_sensor_5_joint" type="fixed">
-    <origin rpy="0.869 -0.000 -2.678" xyz="-0.024 0.113 0.045"/>
-    <axis xyz="-0.341 0.683 0.646"/>
+    <origin rpy="1.466 0.000 2.917" xyz="0.009 0.064 0.131"/>
+    <axis xyz="0.222 0.969 0.105"/>
     <parent link="link2_skin"/>
     <child link="link2_sensor_5"/>
   </joint>
   <link name="link2_sensor_5">
   </link>
   <joint name="link2_sensor_6_joint" type="fixed">
-    <origin rpy="1.630 -0.000 -2.249" xyz="-0.050 0.113 -0.009"/>
-    <axis xyz="-0.777 0.627 -0.06"/>
+    <origin rpy="-0.668 -3.142 0.217" xyz="-0.009 0.112 -0.051"/>
+    <axis xyz="-0.133 0.605 -0.785"/>
     <parent link="link2_skin"/>
     <child link="link2_sensor_6"/>
   </joint>
   <link name="link2_sensor_6">
+  </link>
+  <joint name="link2_sensor_1_joint" type="fixed">
+    <origin rpy="0.869 -0.000 -2.678" xyz="-0.024 0.113 0.045"/>
+    <axis xyz="-0.341 0.683 0.646"/>
+    <parent link="link2_skin"/>
+    <child link="link2_sensor_1"/>
+  </joint>
+  <link name="link2_sensor_1">
+  </link>
+  <joint name="link2_sensor_2_joint" type="fixed">
+    <origin rpy="1.630 -0.000 -2.249" xyz="-0.050 0.113 -0.009"/>
+    <axis xyz="-0.777 0.627 -0.06"/>
+    <parent link="link2_skin"/>
+    <child link="link2_sensor_2"/>
+  </joint>
+  <link name="link2_sensor_2">
   </link>
   <!-- sub-link defining detailed meshes for collision with environment -->
   <link name="fr3_link3">
@@ -433,7 +433,7 @@
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
         <!--loool the scale is totally different dude-->
-        <mesh filename="package://gentact_descriptions_hybrid/meshes/skin/hybrid/link5_part1_hybrid_dermis.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://gentact_descriptions_hybrid/meshes/skin/hybrid/link5_part2_hybrid_dermis.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </visual>
   </link>
@@ -482,7 +482,7 @@
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
         <!--loool the scale is totally different dude-->
-        <mesh filename="package://gentact_descriptions_hybrid/meshes/skin/hybrid/link5_part2_hybrid_dermis.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://gentact_descriptions_hybrid/meshes/skin/hybrid/link5_part1_hybrid_dermis.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </visual>
   </link>

@@ -7,6 +7,7 @@ from math import log
 
 import serial
 import yaml
+from launch import LaunchDescription
 from launch.actions import (
     DeclareLaunchArgument,
     IncludeLaunchDescription,
@@ -18,8 +19,6 @@ from launch.substitutions import Command, LaunchConfiguration, PathJoinSubstitut
 from launch_ros.actions import Node
 from launch_ros.parameter_descriptions import ParameterValue
 from launch_ros.substitutions import FindPackageShare
-
-from launch import LaunchDescription
 
 
 def load_config(config_file_name, context):
@@ -101,33 +100,33 @@ def build_robot(config, use_sim_time, robot_description):
             arguments=["0", "0", "0", "0", "0", "0", "map", "base"],
         )
     )
-
-    robot_nodes.append(
-        Node(
-            package="joint_state_publisher",
-            executable="joint_state_publisher",
-            name="joint_state_relay",
-            output="screen",
-            parameters=[
-                {
-                    "use_sim_time": use_sim_time,
-                    "source_list": ["/fr3/joint_states"],
-                    "rate": 50.0,
-                }
-            ],
-        )
-    )
-
-    if config["robot"]["joint_publisher"]:
+    if config["robot"]["joint_relay"]:
         robot_nodes.append(
             Node(
                 package="joint_state_publisher",
                 executable="joint_state_publisher",
-                name="robot_joint_states",
+                name="joint_state_relay",
                 output="screen",
-                parameters=[{"use_sim_time": use_sim_time}],
+                parameters=[
+                    {
+                        "use_sim_time": use_sim_time,
+                        "source_list": ["/fr3/joint_states"],
+                        "rate": 50.0,
+                    }
+                ],
             )
         )
+
+    # if config["robot"]["joint_publisher"]:
+    #     robot_nodes.append(
+    #         Node(
+    #             package="joint_state_publisher",
+    #             executable="joint_state_publisher",
+    #             name="robot_joint_states",
+    #             output="screen",
+    #             parameters=[{"use_sim_time": use_sim_time}],
+    #         )
+    #     )
     return robot_nodes
 
 
@@ -282,7 +281,7 @@ def build_tracker_nodes(config, sensor_key, sensor_config):
 
 def build_joint_relay_nodes(config):
     joint_relay_nodes = []
-    if config["robot"]["joint_relay"]:
+    if config["robot"]["franky_joint_relay"]:
         joint_relay_nodes.append(
             Node(  # Controls the franka to mimic /joint_states_{arm_id}
                 package="gentact_ros_tools_hybrid",
@@ -384,9 +383,22 @@ def build_cameras_nodes(config):
                         ]
                     )
                 ]
-            )
+            ),
+            launch_arguments={
+                "publish_tf": "true",  # keep camera-internal TFs
+                "tf_prefix": "camera",  # prefix all camera TF frames
+            }.items(),
+        )
+        cam_to_base_tf = Node(
+            package="tf2_ros",
+            executable="static_transform_publisher",
+            name="camera_to_base_tf",
+            output="screen",
+            # Adjust x/y/z/roll/pitch/yaw to match your physical camera mount
+            arguments=["0", "0", "0", "0", "0", "0", "base", "camera_link"],
         )
         cameras_nodes.append(cameras_launch)
+        cameras_nodes.append(cam_to_base_tf)
     return cameras_nodes
 
 

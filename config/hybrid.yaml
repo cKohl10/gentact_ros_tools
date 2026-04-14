@@ -1,6 +1,7 @@
 robot:
   arm_id: "fr3"
-  joint_relay: false
+  franky_joint_relay: false
+  joint_relay: true
   joint_publisher: false
   robot_ip: "192.168.0.100" # Only used for joint relay. Ignore if joint relay is false.
   robot_xacro: "urdf/compiled/fr3_hybrid_skin.urdf" # Make sure the skin xacros are included in this file!
@@ -18,6 +19,7 @@ sensors:
   publish_rate: 30.0 # Hz
   multicast_group: "239.0.0.1"
   multicast: true
+  publish_type: "raw" # raw or pointcloud
 
   # All links defined as in xacro: i.e. '${robot.arm_id}_${link_name}' -> 'fr3_link1'
   # Launch will search for these links and activate if they are found in the xacro file.
@@ -60,7 +62,7 @@ sensors:
     num_sensors: 10
     xacro: "../skin/hybrid/link5_hybrid_front.xacro" # Defined relative to the gentact_ros_tools_hybrid package. Leave empty to not display. Defined from robot xacro file.
     wireless: false
-    port: 5008 # testing if two ports on one skin is possible
+    port: 5007 # testing if two ports on one skin is possible
   link5_back_skin:
     active: true
     type: "SPAD"
@@ -68,7 +70,7 @@ sensors:
     num_sensors: 10
     xacro: "../skin/hybrid/link5_hybrid_back.xacro" # Defined relative to the gentact_ros_tools_hybrid package. Leave empty to not display. Defined from robot xacro file.
     wireless: false
-    port: 5007 # testing if two ports on one skin is possible
+    port: 5008 # testing if two ports on one skin is possible
   link6_skin:
     active: true
     type: "SPAD"
