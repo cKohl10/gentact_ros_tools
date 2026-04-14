@@ -1,0 +1,11 @@
+from_domain: 42
+to_domain: 43
+topics:
+  /fr3/joint_states:
+    type: sensor_msgs/msg/JointState
+  /fr3/franka_robot_state_broadcaster/robot_state:
+    type: franka_msgs/msg/FrankaRobotState
+  #/tf:
+  #  type: tf2_msgs/msg/TFMessage
+  #/tf_static:
+  #  type: tf2_msgs/msg/TFMessage

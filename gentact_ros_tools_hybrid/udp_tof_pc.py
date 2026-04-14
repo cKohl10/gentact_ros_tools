@@ -43,7 +43,8 @@ class UDP_PC_Publisher(Node):
         # self.declare_parameter('max_devices', 10)  # Maximum number of devices to track
         self.declare_parameter("unicast", False)
         self.declare_parameter("multicast", False)
-        self.declare_parameter("multicast_group", None)
+        self.declare_parameter("multicast_group", "")
+        self.declare_parameter("publish_type", "raw")  # raw or pointcloud
 
         # Get parameters
         self.udp_port = (
@@ -69,6 +70,12 @@ class UDP_PC_Publisher(Node):
             self.get_parameter("multicast_group").get_parameter_value().string_value
         )
 
+        if self.multicast and not self.multicast_group:
+            raise RuntimeError("multicast=True requires multicast_group to be set")
+
+        self.publish_type = (
+            self.get_parameter("publish_type").get_parameter_value().string_value
+        )
         # Device tracking
         self.device_publishers = {}  # device_id -> publisher
         self.device_last_seen = {}  # device_id -> last_receive_time
@@ -104,7 +111,10 @@ class UDP_PC_Publisher(Node):
             # Create new publisher for this device
             topic_name = f"link{self.link}_sensor_{sensor_id}"
             # topic_name = f'link{self.link}_sensor_{sensor_id}'
-            publisher = self.create_publisher(PointCloud2, topic_name, 1)
+            if self.publish_type == "pointcloud":
+                publisher = self.create_publisher(PointCloud2, topic_name, 1)
+            else:
+                publisher = self.create_publisher(Float64MultiArray, topic_name, 1)
             device_id = f"link{self.link}_sensor_{sensor_id}"
             self.device_publishers[device_id] = publisher
             self.device_last_seen[device_id] = time.time()
@@ -200,55 +210,76 @@ class UDP_PC_Publisher(Node):
     def _publish_sensor_data(self, sensor_data, publisher, sensor_id):
         """Publish sensor data as ROS2 message"""
         try:
-            data_grid_8x8 = sensor_data["data"].reshape(8, 8)
-            print(data_grid_8x8)
-            # flips the array -- dont need this anymore
-            # data_grid_8x8 = data_grid_8x8[::-1, :]
-            # flip horizontally
-            data_grid_8x8 = data_grid_8x8[:, ::-1]
+            if self.publish_type == "pointcloud":
+                data_grid_8x8 = sensor_data["data"].reshape(8, 8)
+                # print(data_grid_8x8)
+                # flips the array -- dont need this anymore
+                # data_grid_8x8 = data_grid_8x8[::-1, :]
+                # flip horizontally
+                data_grid_8x8 = data_grid_8x8[:, ::-1]
 
-            # Detection angle
-            # view page 4 of https://www.st.com/resource/en/datasheet/vl53l5cx.pdf
+                # Detection angle
+                # view page 4 of https://www.st.com/resource/en/datasheet/vl53l5cx.pdf
 
-            # Convert to meters
-            z_offset = data_grid_8x8.astype(np.float64)
+                # Convert to meters
+                z_offset = data_grid_8x8.astype(np.float64)
 
-            x_offset, y_offset = self.calculate_grid_size(z_offset)
+                x_offset, y_offset = self.calculate_grid_size(z_offset)
 
-            fields = [
-                PointField(name="x", offset=0, datatype=PointField.FLOAT32, count=1),
-                PointField(name="y", offset=4, datatype=PointField.FLOAT32, count=1),
-                PointField(name="z", offset=8, datatype=PointField.FLOAT32, count=1),
-                # below is distance data (mm) from sensor
-                PointField(
-                    name="intensity", offset=12, datatype=PointField.FLOAT32, count=1
-                ),
-            ]
+                fields = [
+                    PointField(
+                        name="x", offset=0, datatype=PointField.FLOAT32, count=1
+                    ),
+                    PointField(
+                        name="y", offset=4, datatype=PointField.FLOAT32, count=1
+                    ),
+                    PointField(
+                        name="z", offset=8, datatype=PointField.FLOAT32, count=1
+                    ),
+                    # below is distance data (mm) from sensor
+                    PointField(
+                        name="intensity",
+                        offset=12,
+                        datatype=PointField.FLOAT32,
+                        count=1,
+                    ),
+                ]
 
-            x_y_z_offset = np.dstack((x_offset, y_offset, z_offset, z_offset))
+                x_y_z_offset = np.dstack((x_offset, y_offset, z_offset, z_offset))
+                sensor_pts = np.reshape(x_y_z_offset, (64, len(fields))).astype(
+                    np.float32
+                )
 
-            # 8 row x 8 col = 64 resolution
-            sensor_pts = np.reshape(x_y_z_offset, (64, len(fields))).astype(np.float32)
-            itemsize = sensor_pts.itemsize
+                INVALID_Z = 4.0
+                valid_mask = sensor_pts[:, 2] != INVALID_Z
+                sensor_pts = sensor_pts[valid_mask]
+                itemsize = sensor_pts.itemsize
 
-            # Create PointCloud2 msg
-            pc_msg = PointCloud2(
-                header=Header(
-                    stamp=self.get_clock().now().to_msg(),
-                    frame_id=f"link{self.link}_sensor_{sensor_id}",
-                ),
-                height=1,
-                width=sensor_pts.shape[0],
-                is_dense=False,
-                is_bigendian=sys.byteorder != "little",
-                fields=fields,
-                point_step=(itemsize * len(fields)),
-                # point_step=16, uncomment this if above doesn't work
-                row_step=(itemsize * len(fields) * sensor_pts.shape[0]),
-                # row_step=16 * sensor_pts.shape[0], uncomment if above doesn't work
-                data=sensor_pts.tobytes(),
-            )
-            publisher.publish(pc_msg)
+                # Create PointCloud2 msg
+                pc_msg = PointCloud2(
+                    header=Header(
+                        stamp=self.get_clock().now().to_msg(),
+                        frame_id=f"link{self.link}_sensor_{sensor_id}",
+                    ),
+                    height=1,
+                    width=sensor_pts.shape[0],
+                    is_dense=True,  # True because invalid points removed
+                    is_bigendian=sys.byteorder != "little",
+                    fields=fields,
+                    point_step=(itemsize * len(fields)),
+                    # point_step=16, uncomment this if above doesn't work
+                    row_step=(itemsize * len(fields) * sensor_pts.shape[0]),
+                    # row_step=16 * sensor_pts.shape[0], uncomment if above doesn't work
+                    data=sensor_pts.tobytes(),
+                )
+                publisher.publish(pc_msg)
+
+            elif self.publish_type == "raw":
+                INVALID_Z = 4.0
+                valid_mask = sensor_data["data"] != INVALID_Z
+                filtered_data = sensor_data["data"][valid_mask]
+                msg = Float64MultiArray(data=filtered_data.flatten().tolist())
+                publisher.publish(msg)
 
             # Publish
             # publisher.publish(msg)
