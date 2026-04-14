@@ -9,7 +9,7 @@ import numpy as np
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import PointCloud2, PointField
-from std_msgs.msg import Float64MultiArray, Header, Int32MultiArray
+from std_msgs.msg import Float64MultiArray, Header
 
 IMAGE_WIDTH = 8
 NUM_PIXELS = IMAGE_WIDTH * IMAGE_WIDTH
@@ -45,6 +45,7 @@ class UDP_PC_Publisher(Node):
         self.declare_parameter("multicast", False)
         self.declare_parameter("multicast_group", "")
         self.declare_parameter("publish_type", "raw")  # raw or pointcloud
+        self.declare_parameter("filter", True)
 
         # Get parameters
         self.udp_port = (
@@ -76,6 +77,8 @@ class UDP_PC_Publisher(Node):
         self.publish_type = (
             self.get_parameter("publish_type").get_parameter_value().string_value
         )
+        self.filter = self.get_parameter("filter").get_parameter_value().bool_value
+
         # Device tracking
         self.device_publishers = {}  # device_id -> publisher
         self.device_last_seen = {}  # device_id -> last_receive_time
@@ -250,10 +253,16 @@ class UDP_PC_Publisher(Node):
                     np.float32
                 )
 
-                INVALID_Z = 4.0
-                valid_mask = sensor_pts[:, 2] != INVALID_Z
-                sensor_pts = sensor_pts[valid_mask]
-                itemsize = sensor_pts.itemsize
+                is_dense = False
+
+                if self.filter:
+                    INVALID_Z = 4.0
+                    valid_mask = sensor_pts[:, 2] != INVALID_Z
+                    sensor_pts = sensor_pts[valid_mask]
+                    itemsize = sensor_pts.itemsize
+                    is_dense = True
+                else:
+                    itemsize = sensor_pts.itemsize
 
                 # Create PointCloud2 msg
                 pc_msg = PointCloud2(
@@ -263,7 +272,7 @@ class UDP_PC_Publisher(Node):
                     ),
                     height=1,
                     width=sensor_pts.shape[0],
-                    is_dense=True,  # True because invalid points removed
+                    is_dense=is_dense,  # True because invalid points removed
                     is_bigendian=sys.byteorder != "little",
                     fields=fields,
                     point_step=(itemsize * len(fields)),
@@ -275,10 +284,14 @@ class UDP_PC_Publisher(Node):
                 publisher.publish(pc_msg)
 
             elif self.publish_type == "raw":
-                INVALID_Z = 4.0
-                valid_mask = sensor_data["data"] != INVALID_Z
-                filtered_data = sensor_data["data"][valid_mask]
-                msg = Float64MultiArray(data=filtered_data.flatten().tolist())
+                if self.filter:
+                    INVALID_Z = 4.0
+                    valid_mask = sensor_data["data"] != INVALID_Z
+                    final_readings = sensor_data["data"][valid_mask]
+                else:
+                    final_readings = sensor_data["data"]
+
+                msg = Float64MultiArray(data=final_readings.flatten().tolist())
                 publisher.publish(msg)
 
             # Publish
