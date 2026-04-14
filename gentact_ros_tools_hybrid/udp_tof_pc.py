@@ -246,11 +246,13 @@ class UDP_PC_Publisher(Node):
                 ]
 
                 x_y_z_offset = np.dstack((x_offset, y_offset, z_offset, z_offset))
-
-                # 8 row x 8 col = 64 resolution
                 sensor_pts = np.reshape(x_y_z_offset, (64, len(fields))).astype(
                     np.float32
                 )
+
+                INVALID_Z = 4.0
+                valid_mask = sensor_pts[:, 2] != INVALID_Z
+                sensor_pts = sensor_pts[valid_mask]
                 itemsize = sensor_pts.itemsize
 
                 # Create PointCloud2 msg
