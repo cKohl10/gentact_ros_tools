@@ -263,7 +263,7 @@ class UDP_PC_Publisher(Node):
                     ),
                     height=1,
                     width=sensor_pts.shape[0],
-                    is_dense=False,
+                    is_dense=True,  # True because invalid points removed
                     is_bigendian=sys.byteorder != "little",
                     fields=fields,
                     point_step=(itemsize * len(fields)),
@@ -275,7 +275,10 @@ class UDP_PC_Publisher(Node):
                 publisher.publish(pc_msg)
 
             elif self.publish_type == "raw":
-                msg = Float64MultiArray(data=sensor_data["data"].flatten().tolist())
+                INVALID_Z = 4.0
+                valid_mask = sensor_data["data"] != INVALID_Z
+                filtered_data = sensor_data["data"][valid_mask]
+                msg = Float64MultiArray(data=filtered_data.flatten().tolist())
                 publisher.publish(msg)
 
             # Publish
