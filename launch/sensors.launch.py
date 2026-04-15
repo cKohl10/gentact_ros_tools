@@ -157,6 +157,10 @@ def build_sensor_nodes(config, sensor_port_mapping):
                             ),
                             "num_sensors": sensor_config.get("num_sensors", 8),
                             #'publish_rate': config['sensors'].get('publish_rate', 30.0),
+                            "publish_type": sensor_config.get(
+                                "publish_type", "pointcloud"
+                            ),
+                            "filter": sensor_config.get("filter", True),
                         }
                     ],
                 )

@@ -31,7 +31,10 @@ def generate_launch_description():
         package="camera_tools",
         executable="basic_camera_node",
         name="webcam",
-        arguments=["-c", "0"],
+        parameters=[
+            {"camera_index": 0},
+            {"publish_rate": 30.0},
+        ],
     )
 
     return LaunchDescription(
@@ -41,8 +44,8 @@ def generate_launch_description():
                 default_value="false",
                 description="Use simulation (Gazebo) clock if true",
             ),
-            camera,
+            # camera,
             # camera_right,
-            # webcam_node,
+            webcam_node,
         ]
     )

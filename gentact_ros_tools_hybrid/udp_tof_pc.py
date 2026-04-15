@@ -291,6 +291,7 @@ class UDP_PC_Publisher(Node):
                 else:
                     final_readings = sensor_data["data"]
 
+                self.get_logger().info(f"{self.publish_type}")
                 msg = Float64MultiArray(data=final_readings.flatten().tolist())
                 publisher.publish(msg)
 
