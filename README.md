@@ -38,3 +38,9 @@ ros2 run udp_tof_listener udp_grid_listener_array
 ```bash
 ros2 run pointcloud talker
 ```
+
+If you are unable to see custom packages after sourcing your local workspace, make sure 
+
+```python3-colcon-ros```
+
+is installed
