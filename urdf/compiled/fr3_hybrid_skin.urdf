@@ -673,7 +673,7 @@
   <link name="fr3_hand">
     <visual name="fr3_hand_visual">
       <geometry>
-        <mesh filename="package://gentact_descriptions/meshes/robot_ee/franka_hand_white/visual/hand.dae"/>
+        <mesh filename="package://gentact_descriptions_hybrid/meshes/robot_ee/franka_hand_white/visual/hand.dae"/>
       </geometry>
     </visual>
     <collision name="fr3_hand_collision">
@@ -697,7 +697,7 @@
   <link name="fr3_leftfinger">
     <visual name="fr3_leftfinger_visual">
       <geometry>
-        <mesh filename="package://gentact_descriptions/meshes/robot_ee/franka_hand_white/visual/finger.dae"/>
+        <mesh filename="package://gentact_descriptions_hybrid/meshes/robot_ee/franka_hand_white/visual/finger.dae"/>
       </geometry>
     </visual>
     <!-- screw mount -->
@@ -738,7 +738,7 @@
     <visual name="fr3_rightfinger_visual">
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://gentact_descriptions/meshes/robot_ee/franka_hand_white/visual/finger.dae"/>
+        <mesh filename="package://gentact_descriptions_hybrid/meshes/robot_ee/franka_hand_white/visual/finger.dae"/>
       </geometry>
     </visual>
     <!-- screw mount -->

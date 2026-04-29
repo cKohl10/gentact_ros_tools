@@ -406,6 +406,23 @@ def build_cameras_nodes(config):
     return cameras_nodes
 
 
+def self_detection_node(robot_description):
+
+    return Node(
+        package="robot_self_filter",
+        executable="self_filter_node",
+        name="self_filter_node",
+        parameters=[
+            {"robot_description": robot_description},
+            "~/ros2_ws/src/robot_self_filter/config/fr3_self_filter.yaml",
+        ],
+        remappings=[
+            ("cloud_in", "/cloud_merged"),
+            ("cloud_out", "/cloud_merged_filtered"),
+        ],
+    )
+
+
 def launch_setup(context, *args, **kwargs):
     # Get the config file name from launch configuration
     config_file_name = LaunchConfiguration("config").perform(context)
@@ -415,7 +432,10 @@ def launch_setup(context, *args, **kwargs):
 
     # Build robot description
     robot_description = build_robot_description(config)
+
     robot_nodes = build_robot(config, use_sim_time, robot_description)
+    if config["robot"]["self_detection"]:
+        robot_nodes.append(self_detection_node(robot_description))
     controller_nodes = build_controller_nodes(config)
 
     # Build sensor nodes dynamically from config
